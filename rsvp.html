@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>RSVP — Wedding Invitation</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Lato:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- ============================================================
+  WEDDING APP — CONFIGURATION
+  Edit WEDDING_CONFIG below before uploading to your hosting.
+  ============================================================ -->
+<script>
+  const WEDDING_CONFIG = {
+    // Paste your Google Apps Script Web App URL here:
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxMYebIN0VO5hYRZpAoLKR1Szsd8dTHB_GBOeUjmjdJh3CyFmoG7L_qryPWOTzTvTbC/exec',
+
+    // Your names shown on the welcome screen:
+    COUPLE_NAMES: 'Aey & Gard',
+
+    // Wedding date (displayed on the page):
+    WEDDING_DATE: 'Saturday, 27 June 2026',
+
+    // Wedding venue name:
+    VENUE_NAME: 'Eastin Grand Hotel Phayathai, Siam Hall 6th Floor',
+
+    // Wedding venue address:
+    VENUE_ADDRESS: '18 Phaya Thai Rd, Thung Phaya Thai,Ratchathewi, Bangkok 10400',
+
+    // Ceremony time:
+    CEREMONY_TIME: '17:30',
+
+    // Reception time:
+    RECEPTION_TIME: '18:30',
+
+    // RSVP deadline date:
+    RSVP_DEADLINE: '31 May 2025',
+
+    // Contact email for questions:
+    CONTACT_EMAIL: 'aeygothergard@gmail.com',
+
+    // Contact phone:
+    CONTACT_PHONE: '+66-83-992-9365, +66-83-071-8422',
+
+    // Google Maps link (optional):
+    MAPS_URL: 'https://maps.app.goo.gl/KFbAm48EQ1FL1y9v8',
+
+    // Dress code:
+    DRESS_CODE: 'Wear whatever you feel like. No idea? Think pastel!',
+
+    // Max guests per RSVP:
+    MAX_GUESTS_PER_RSVP: 4,
+  };
+</script>
+<style>
+/* ── TOKENS ── */
+:root {
+  --bg:         #fef6f8;
+  --gold:       #d4829a;
+  --gold-dim:   rgba(212,130,154,0.15);
+  --gold-dark:  #a85570;
+  --gold-light: #f0b8c8;
+  --muted:      #b09098;
+  --sage:       #88b5a0;
+  --rose:       #e8a0b0;
+  --lavender:   #d0c0e8;
+  --periwinkle: #b8c8e8;
+  --peach:      #f5c8a8;
+  --butter:     #f5e8b0;
+  --border:     rgba(212,130,154,0.22);
+  --text:       #4a3540;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { font-family:'Lato',sans-serif; background:var(--bg); color:var(--text); overscroll-behavior:none; }
+
+/* ── BG ORBS ── */
+.bg-orbs { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+.orb { position:absolute; border-radius:50%; filter:blur(60px); opacity:0.55; animation:drift 14s ease-in-out infinite alternate; }
+.orb-1 { width:500px; height:500px; background:radial-gradient(ellipse,#fce0e8,#faeef8); top:-150px; left:-100px; }
+.orb-2 { width:380px; height:380px; background:radial-gradient(ellipse,#e8eefa,#d8f0f0); bottom:-100px; right:-80px; animation-delay:-5s; }
+.orb-3 { width:280px; height:280px; background:radial-gradient(ellipse,#fef0d8,#fce8d0); top:40%; left:50%; animation-delay:-10s; opacity:0.4; }
+.orb-4 { width:200px; height:200px; background:radial-gradient(ellipse,#e8e0f8,#d0e8f8); top:20%; right:5%; animation-delay:-3s; opacity:0.4; }
+@keyframes drift { from{transform:translate(0,0) scale(1)} to{transform:translate(24px,18px) scale(1.04)} }
+
+/* ── PAGE ── */
+.page { position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:0 20px 72px; }
+
+/* ── HERO ── */
+.hero { width:100%; max-width:560px; text-align:center; padding:60px 0 44px; }
+.hero-eyebrow { font-size:0.62rem; letter-spacing:0.38em; text-transform:uppercase; color:var(--gold); margin-bottom:16px; animation:fadeUp 0.6s ease 0.1s both; }
+.hero-names { font-family:'Playfair Display',serif; font-size:clamp(3rem,10vw,4.2rem); font-weight:500; line-height:1.05; animation:fadeUp 0.6s ease 0.2s both; }
+.hero-names em { font-style:italic; color:var(--gold); }
+.hero-ampersand { font-family:'Playfair Display',serif; font-style:italic; font-size:2rem; color:var(--gold-light); display:block; margin:2px 0; }
+.hero-date { font-size:0.82rem; color:var(--muted); margin-top:14px; letter-spacing:0.1em; text-transform:uppercase; animation:fadeUp 0.6s ease 0.3s both; }
+.hero-divider { width:80px; height:1px; background:linear-gradient(90deg,transparent,var(--rose),var(--lavender),transparent); margin:20px auto 0; animation:fadeUp 0.6s ease 0.35s both; }
+
+/* ── DEADLINE ── */
+.deadline-badge {
+  width:100%; max-width:560px; text-align:center;
+  padding:10px 20px; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase;
+  color:var(--gold-dark); background:rgba(212,130,154,0.08);
+  border:1px solid rgba(212,130,154,0.2); border-radius:20px; margin-bottom:28px;
+  animation:fadeUp 0.55s ease 0.38s both;
+}
+
+/* ── EVENT STRIP ── */
+.event-strip {
+  width:100%; max-width:560px;
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:1px; background:var(--border);
+  border:1px solid var(--border); border-radius:4px; overflow:hidden;
+  box-shadow:0 2px 16px rgba(212,130,154,0.08); margin-bottom:28px;
+  animation:fadeUp 0.6s ease 0.42s both;
+}
+.event-cell { background:rgba(255,255,255,0.88); padding:18px 16px; text-align:center; backdrop-filter:blur(6px); }
+.event-cell-label { font-size:0.58rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--gold); margin-bottom:5px; }
+.event-cell-value { font-family:'Playfair Display',serif; font-size:0.88rem; font-weight:500; color:var(--text); line-height:1.3; }
+.event-cell-sub { font-size:0.65rem; color:var(--muted); margin-top:2px; }
+
+/* ── CARD ── */
+.card {
+  width:100%; max-width:560px;
+  background:rgba(255,255,255,0.9);
+  border:1px solid var(--border);
+  padding:28px 24px; margin-bottom:16px;
+  position:relative; overflow:hidden; border-radius:4px;
+  box-shadow:0 4px 30px rgba(212,130,154,0.1);
+  backdrop-filter:blur(8px);
+}
+.card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+
+#card-1  { animation:fadeUp 0.5s ease 0.48s both; }
+#card-1::before  { background:linear-gradient(90deg,var(--rose),var(--peach)); }
+#card-2  { animation:fadeUp 0.5s ease 0.56s both; }
+#card-2::before  { background:linear-gradient(90deg,var(--lavender),var(--periwinkle)); }
+#card-3a { animation:fadeUp 0.5s ease 0.64s both; }
+#card-3a::before { background:linear-gradient(90deg,var(--periwinkle),var(--sage)); }
+#card-4  { animation:fadeUp 0.5s ease 0.72s both; }
+#card-4::before  { background:linear-gradient(90deg,var(--peach),var(--butter)); }
+#card-5  { animation:fadeUp 0.5s ease 0.80s both; }
+#card-5::before  { background:linear-gradient(90deg,var(--rose),var(--lavender)); }
+
+.card-label { font-size:0.62rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--gold); margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+.card-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ── FIELDS ── */
+.field-group { margin-bottom:18px; }
+.field-group:last-child { margin-bottom:0; }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+label { display:block; font-size:0.63rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+label.inline { display:flex; align-items:center; gap:10px; text-transform:none; letter-spacing:0; font-size:0.85rem; color:var(--text); cursor:pointer; margin-bottom:0; }
+
+input[type=text], input[type=email], input[type=tel], select, textarea {
+  width:100%; padding:13px 16px;
+  background:var(--bg); border:1px solid var(--border); color:var(--text);
+  font-family:'Lato',sans-serif; font-size:0.9rem; border-radius:3px;
+  transition:border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance:none; appearance:none;
+}
+input::placeholder, textarea::placeholder { color:var(--muted); }
+input:focus, select:focus, textarea:focus { outline:none; border-color:var(--gold); background:white; box-shadow:0 0 0 3px rgba(212,130,154,0.12); }
+select { background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23b09098'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:pointer; }
+textarea { resize:vertical; min-height:90px; line-height:1.6; }
+
+/* ── ATTENDANCE TOGGLE ── */
+.attend-toggle { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.radio-tile { position:relative; }
+.radio-tile input[type=radio] { position:absolute; opacity:0; width:0; height:0; }
+.radio-tile label { display:flex; align-items:center; justify-content:center; gap:8px; padding:16px; border:1.5px solid var(--border); background:rgba(255,255,255,0.6); cursor:pointer; transition:all 0.2s; border-radius:3px; font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; font-weight:700; color:var(--muted); margin-bottom:0; }
+.radio-tile label .tile-icon { font-size:1.2rem; }
+.radio-tile input:checked + label { border-color:var(--gold); background:var(--gold-dim); color:var(--gold-dark); box-shadow:0 0 0 3px rgba(212,130,154,0.12); }
+.radio-tile.is-decline input:checked + label { border-color:rgba(180,160,170,0.5); background:rgba(180,160,170,0.08); color:var(--muted); }
+
+/* ── GUEST ROWS ── */
+.guest-rows { display:flex; flex-direction:column; gap:10px; }
+.guest-row { display:grid; grid-template-columns:32px 1fr 1fr; gap:10px; align-items:end; padding:14px; background:rgba(253,244,248,0.7); border:1px dashed rgba(212,130,154,0.25); border-radius:3px; }
+.guest-row .field-group { margin-bottom:0; }
+.guest-num { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--rose),var(--lavender)); display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:700; color:white; flex-shrink:0; align-self:end; margin-bottom:2px; }
+.guest-name-display { width:100%; padding:13px 16px; background:rgba(212,130,154,0.07); border:1px dashed rgba(212,130,154,0.35); color:var(--text); border-radius:3px; font-size:0.9rem; font-style:italic; font-family:'Playfair Display',serif; }
+
+/* ── HOTEL LIST ── */
+.hotel-list { display:flex; flex-direction:column; gap:8px; }
+.hotel-card { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 16px; background:rgba(255,255,255,0.7); border:1px solid var(--border); border-radius:3px; transition:border-color 0.2s; }
+.hotel-card:hover { border-color:var(--gold); }
+.hotel-name { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:500; color:var(--text); margin-bottom:2px; }
+.hotel-detail { font-size:0.72rem; color:var(--muted); letter-spacing:0.02em; }
+.hotel-map-btn { flex-shrink:0; padding:6px 14px; border:1px solid var(--border); border-radius:20px; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); text-decoration:none; transition:all 0.2s; white-space:nowrap; }
+.hotel-map-btn:hover { background:var(--gold); color:white; border-color:var(--gold); }
+
+/* ── DRESS PILL ── */
+.dress-pill { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--bg); border:1px solid var(--border); border-radius:3px; }
+.dress-pill-icon { font-size:1.2rem; }
+.dress-pill-text { font-size:0.85rem; color:var(--text); }
+
+/* ── INFO NOTE ── */
+.info-note { width:100%; max-width:560px; display:flex; align-items:flex-start; gap:12px; padding:14px 18px; background:rgba(255,255,255,0.6); border:1px solid var(--border); border-radius:4px; margin-bottom:14px; font-size:0.78rem; color:var(--muted); line-height:1.6; animation:fadeUp 0.5s ease 0.86s both; }
+
+/* ── SUBMIT ── */
+.btn-submit { width:100%; max-width:560px; padding:20px; background:var(--gold); border:none; color:white; font-family:'Playfair Display',serif; font-size:1.15rem; font-style:italic; letter-spacing:0.06em; cursor:pointer; border-radius:4px; transition:all 0.25s; animation:fadeUp 0.5s ease 0.92s both; }
+.btn-submit:hover { background:var(--gold-dark); transform:translateY(-1px); box-shadow:0 8px 24px rgba(212,130,154,0.35); }
+.btn-submit:disabled { opacity:0.55; cursor:not-allowed; transform:none; box-shadow:none; }
+
+/* ── CHAR COUNTER ── */
+.char-count { font-size:0.65rem; color:var(--muted); text-align:right; margin-top:4px; }
+
+/* ── SUCCESS OVERLAY ── */
+.success-overlay { display:none; position:fixed; inset:0; z-index:200; background:rgba(250,238,242,0.95); backdrop-filter:blur(12px); align-items:center; justify-content:center; padding:24px; }
+.success-overlay.show { display:flex; }
+.success-box { max-width:400px; width:100%; background:white; border:1px solid rgba(212,130,154,0.3); padding:48px 36px; border-radius:4px; box-shadow:0 20px 60px rgba(212,130,154,0.2); text-align:center; position:relative; animation:popIn 0.45s cubic-bezier(.22,1,.36,1) both; }
+.success-box::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--rose),var(--lavender),var(--periwinkle)); border-radius:4px 4px 0 0; }
+.success-icon { font-size:3.5rem; display:block; margin-bottom:14px; }
+.success-title { font-family:'Playfair Display',serif; font-size:2rem; font-weight:500; color:var(--text); margin-bottom:6px; }
+.success-sub { font-family:'Playfair Display',serif; font-size:1.1rem; font-style:italic; color:var(--gold); margin-bottom:14px; }
+.success-detail { font-size:0.8rem; color:var(--muted); line-height:1.7; margin-bottom:28px; }
+.btn-done { width:100%; padding:15px; background:var(--gold-dim); border:1px solid rgba(212,130,154,0.4); color:var(--gold); font-family:'Lato',sans-serif; font-size:0.78rem; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; border-radius:3px; font-weight:700; transition:all 0.2s; }
+.btn-done:hover { background:var(--gold); color:white; }
+
+/* ── CONFETTI ── */
+.confetti-piece { position:fixed; pointer-events:none; z-index:300; animation:confettiFall linear forwards; }
+@keyframes confettiFall { 0%{transform:translateY(-10px) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(600deg);opacity:0} }
+
+/* ── FOOTER ── */
+.footer { width:100%; max-width:560px; text-align:center; margin-top:36px; font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); animation:fadeUp 0.5s ease 0.96s both; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes popIn  { from{opacity:0;transform:scale(0.88) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+/* ── RESPONSIVE ── */
+@media(max-width:480px) {
+  .row2 { grid-template-columns:1fr; }
+  .event-strip { grid-template-columns:1fr; }
+  .guest-row { grid-template-columns:32px 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-box" id="success-box"></div>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">You are cordially invited ✦</div>
+    <h1 class="hero-names">
+      <em id="name-1"></em>
+      <span class="hero-ampersand">&</span>
+      <em id="name-2"></em>
+    </h1>
+    <p class="hero-date" id="hero-date"></p>
+    <div class="hero-divider"></div>
+  </div>
+
+  <!-- DEADLINE -->
+  <div class="deadline-badge">✦ Please RSVP by <span id="rsvp-deadline"></span> ✦</div>
+
+  <!-- EVENT STRIP -->
+  <div class="event-strip">
+    <div class="event-cell">
+      <div class="event-cell-label">Ceremony</div>
+      <div class="event-cell-value" id="strip-ceremony"></div>
+      <div class="event-cell-sub">Begins promptly</div>
+    </div>
+    <div class="event-cell">
+      <div class="event-cell-label">Venue</div>
+      <div class="event-cell-value" id="strip-venue"></div>
+      <div class="event-cell-sub"><a id="strip-map" href="#" target="_blank" rel="noopener noreferrer" style="color:var(--gold);font-size:0.65rem;text-decoration:none">View map ↗</a></div>
+    </div>
+    <div class="event-cell">
+      <div class="event-cell-label">Reception</div>
+      <div class="event-cell-value" id="strip-reception"></div>
+      <div class="event-cell-sub">Dinner &amp; celebration</div>
+    </div>
+  </div>
+
+  <!-- ══ CARD 1 — ATTENDANCE ══ -->
+  <div class="card" id="card-1">
+    <div class="card-label">Will you be joining us?</div>
+    <div class="attend-toggle">
+      <div class="radio-tile">
+        <input type="radio" name="attendance" id="att-yes" value="yes" checked onchange="toggleAttendance(this.value)">
+        <label for="att-yes"><span class="tile-icon">🥂</span> Joyfully accepts</label>
+      </div>
+      <div class="radio-tile is-decline">
+        <input type="radio" name="attendance" id="att-no" value="no" onchange="toggleAttendance(this.value)">
+        <label for="att-no"><span class="tile-icon">💌</span> Regretfully declines</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CARD 2 — YOUR DETAILS ══ -->
+  <div class="card" id="card-2">
+    <div class="card-label">Your details</div>
+
+    <div class="row2" style="margin-bottom:16px">
+      <div class="field-group">
+        <label for="first-name">First Name *</label>
+        <input type="text" id="first-name" placeholder="Somchai" autocomplete="given-name">
+      </div>
+      <div class="field-group">
+        <label for="last-name">Last Name *</label>
+        <input type="text" id="last-name" placeholder="Jaidee" autocomplete="family-name">
+      </div>
+    </div>
+
+    <div class="row2" style="margin-bottom:16px">
+      <div class="field-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@email.com" autocomplete="email">
+      </div>
+      <div class="field-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" placeholder="081-234-5678" autocomplete="tel">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field-group">
+        <label for="relation">Relation to Couple</label>
+        <select id="relation">
+          <option value="">— Select —</option>
+          <option>Family of Bride</option>
+          <option>Family of Groom</option>
+          <option>Friend of Bride</option>
+          <option>Friend of Groom</option>
+          <option>Mutual Friend</option>
+          <option>Colleague</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="how-know">How did you meet? <span style="font-size:0.58rem;opacity:0.7">(optional)</span></label>
+        <input type="text" id="how-know" placeholder="e.g. University, Work…">
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CARD 3A — PARTY DETAILS (only shown when attending) ══ -->
+  <div class="card" id="card-3a">
+    <div class="card-label">Your party</div>
+
+    <div class="field-group">
+      <label for="party-size">Number of guests attending (including you)</label>
+      <select id="party-size" onchange="updateGuestRows()"></select>
+    </div>
+
+    <div class="guest-rows" id="guest-rows">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- ══ CARD 4 — EXTRA DETAILS (only shown when attending) ══ -->
+  <div class="card" id="card-4">
+    <div class="card-label">A few more details</div>
+
+    <div class="field-group">
+      <label style="margin-bottom:12px">Nearby accommodation options</label>
+      <div class="hotel-list">
+        <div class="hotel-card">
+          <div class="hotel-info">
+            <div class="hotel-name">Eastin Grand Hotel Phayathai</div>
+            <div class="hotel-detail">Approx. THB 5,000 / night · Venue place</div>
+          </div>
+          <a href="https://maps.app.goo.gl/daGtVvz2JYe2ieoK8" target="_blank" class="hotel-map-btn">Map ↗</a>
+        </div>
+        <div class="hotel-card">
+          <div class="hotel-info">
+            <div class="hotel-name">Hotel Tranz</div>
+            <div class="hotel-detail">Approx. THB 2,200 / night · 5 minnutes away from venue</div>
+          </div>
+          <a href="https://maps.app.goo.gl/WK4FDViURgLjTThC9" target="_blank" class="hotel-map-btn">Map ↗</a>
+        </div>
+        <div class="hotel-card">
+          <div class="hotel-info">
+            <div class="hotel-name">True Siam Phayathai Hotel</div>
+            <div class="hotel-detail">Approx. THB 1,500 / night · 10 min from venue</div>
+          </div>
+          <a href="https://maps.app.goo.gl/2zU4vqYsPn9BEtNA7" target="_blank" class="hotel-map-btn">Map ↗</a>
+        </div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:10px;letter-spacing:0.02em">
+        💌 Need help with booking? Contact us at <strong id="contact-accomm"></strong>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label>Dress code</label>
+      <div class="dress-pill">
+        <span class="dress-pill-icon">👗</span>
+        <span class="dress-pill-text" id="dress-code-text"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CARD 5 — MESSAGE (shown to everyone) ══ -->
+  <div class="card" id="card-5">
+    <div class="card-label">A message for the couple</div>
+    <div class="field-group">
+      <label for="wishes">Share your wishes, memories, or advice</label>
+      <textarea id="wishes" placeholder="Wishing you both a lifetime of love, laughter, and endless happiness…" maxlength="500" oninput="countChars('wishes',500)"></textarea>
+      <div class="char-count" id="wishes-count">0 / 500</div>
+    </div>
+  </div>
+
+  <!-- INFO NOTE -->
+  <div class="info-note">
+    <span style="font-size:1rem;flex-shrink:0">💌</span>
+    <span>Questions? Reach us at <strong id="contact-email"></strong> or <strong id="contact-phone"></strong></span>
+  </div>
+
+  <!-- SUBMIT -->
+  <button class="btn-submit" id="btn-submit" onclick="submitRSVP()">
+    Send your RSVP ✦
+  </button>
+
+  <div class="footer">✦ &nbsp; <span id="footer-names"></span> &nbsp; ✦ &nbsp; <span id="footer-date"></span></div>
+
+</div><!-- end .page -->
+
+<script>
+// ── INIT ──────────────────────────────────────────────────────
+function init() {
+  const C = WEDDING_CONFIG;
+  const parts = C.COUPLE_NAMES.split(' & ');
+  document.getElementById('name-1').textContent         = parts[0] || 'Bride';
+  document.getElementById('name-2').textContent         = parts[1] || 'Groom';
+  document.getElementById('hero-date').textContent      = C.WEDDING_DATE;
+  document.getElementById('rsvp-deadline').textContent  = C.RSVP_DEADLINE;
+  document.getElementById('strip-ceremony').textContent = C.CEREMONY_TIME;
+  document.getElementById('strip-venue').textContent    = C.VENUE_NAME;
+  document.getElementById('strip-reception').textContent= C.RECEPTION_TIME;
+  document.getElementById('strip-map').href             = C.MAPS_URL || '#';
+  document.getElementById('dress-code-text').textContent= C.DRESS_CODE;
+  document.getElementById('contact-email').textContent  = C.CONTACT_EMAIL;
+  document.getElementById('contact-phone').textContent  = C.CONTACT_PHONE;
+  document.getElementById('contact-accomm').textContent = C.CONTACT_EMAIL;
+  document.getElementById('footer-names').textContent   = C.COUPLE_NAMES;
+  document.getElementById('footer-date').textContent    = C.WEDDING_DATE;
+
+  // Build party-size select
+  const ps = document.getElementById('party-size');
+  for (let i = 1; i <= (C.MAX_GUESTS_PER_RSVP || 5); i++) {
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = i === 1 ? '1 — Just me' : `${i} guests`;
+    ps.appendChild(o);
+  }
+
+  updateGuestRows();
+  setTimeout(() => document.getElementById('first-name').focus(), 700);
+}
+
+// ── ATTENDANCE TOGGLE ─────────────────────────────────────────
+function toggleAttendance(val) {
+  const attending = val === 'yes';
+  document.getElementById('card-3a').style.display = attending ? '' : 'none';
+  document.getElementById('card-4').style.display  = attending ? '' : 'none';
+  document.getElementById('btn-submit').textContent = attending
+    ? 'Send your RSVP ✦'
+    : 'Send my regrets ✦';
+}
+
+// ── GUEST ROWS ────────────────────────────────────────────────
+function updateGuestRows() {
+  const count = parseInt(document.getElementById('party-size').value) || 1;
+  const fn = (document.getElementById('first-name').value || '').trim();
+  const ln = (document.getElementById('last-name').value  || '').trim();
+  const primaryName = (fn + ' ' + ln).trim() || 'You';
+
+  let html = '';
+  for (let i = 1; i <= count; i++) {
+    if (i === 1) {
+      html += `
+        <div class="guest-row">
+          <div class="guest-num">1</div>
+          <div class="field-group">
+            <label>Name</label>
+            <div class="guest-name-display" id="gname-display">${primaryName}</div>
+          </div>
+          <div class="field-group">
+            <label for="gallergy-1">Allergies / dietary notes <span style="font-size:0.58rem;opacity:0.7">(optional)</span></label>
+            <input type="text" id="gallergy-1" placeholder="e.g. Nut allergy, none…">
+          </div>
+        </div>`;
+    } else {
+      html += `
+        <div class="guest-row">
+          <div class="guest-num">${i}</div>
+          <div class="field-group">
+            <label for="gname-${i}">Guest ${i} name</label>
+            <input type="text" id="gname-${i}" placeholder="Full name">
+          </div>
+          <div class="field-group">
+            <label for="gallergy-${i}">Allergies / dietary notes <span style="font-size:0.58rem;opacity:0.7">(optional)</span></label>
+            <input type="text" id="gallergy-${i}" placeholder="e.g. Vegetarian, none…">
+          </div>
+        </div>`;
+    }
+  }
+  document.getElementById('guest-rows').innerHTML = html;
+}
+
+// Keep guest row 1 name display in sync as the user types
+document.addEventListener('input', e => {
+  if (e.target.id === 'first-name' || e.target.id === 'last-name') {
+    const fn = (document.getElementById('first-name').value || '').trim();
+    const ln = (document.getElementById('last-name').value  || '').trim();
+    const display = document.getElementById('gname-display');
+    if (display) display.textContent = (fn + ' ' + ln).trim() || 'You';
+  }
+});
+
+// ── CHAR COUNTER ──────────────────────────────────────────────
+function countChars(id, max) {
+  const el = document.getElementById(id);
+  const ct = document.getElementById(id + '-count');
+  if (ct) ct.textContent = `${el.value.length} / ${max}`;
+}
+
+// ── COLLECT DATA ──────────────────────────────────────────────
+function collectData() {
+  const attending = document.querySelector('input[name="attendance"]:checked').value === 'yes';
+  const partySize = attending ? (parseInt(document.getElementById('party-size').value) || 1) : 0;
+
+  const guests = [];
+  for (let i = 1; i <= partySize; i++) {
+    const name = i === 1
+      ? ((document.getElementById('first-name').value || '') + ' ' + (document.getElementById('last-name').value || '')).trim()
+      : (document.getElementById(`gname-${i}`)?.value || '').trim();
+    guests.push({
+      name,
+      allergy: (document.getElementById(`gallergy-${i}`)?.value || '').trim(),
+    });
+  }
+
+  return {
+    timestamp:  new Date().toISOString(),
+    attending,
+    firstName:  document.getElementById('first-name').value.trim(),
+    lastName:   document.getElementById('last-name').value.trim(),
+    email:      document.getElementById('email').value.trim(),
+    phone:      document.getElementById('phone').value.trim(),
+    relation:   document.getElementById('relation').value,
+    howKnow:    document.getElementById('how-know').value.trim(),
+    partySize,
+    guests,
+    wishes:     document.getElementById('wishes').value.trim(),
+  };
+}
+
+// ── VALIDATE ─────────────────────────────────────────────────
+function validate(d) {
+  if (!d.firstName) { flash('first-name'); return 'Please enter your first name.'; }
+  if (!d.lastName)  { flash('last-name');  return 'Please enter your last name.'; }
+  return null;
+}
+function flash(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = '#d4829a';
+  el.style.boxShadow   = '0 0 0 3px rgba(212,130,154,0.2)';
+  el.focus();
+  el.addEventListener('input', () => { el.style.borderColor = ''; el.style.boxShadow = ''; }, { once: true });
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────
+async function submitRSVP() {
+  const d   = collectData();
+  const err = validate(d);
+  if (err) { showToast(err); return; }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const url  = WEDDING_CONFIG.SCRIPT_URL;
+  const live = url && !url.includes('YOUR_SCRIPT_ID');
+  if (live) {
+    try {
+      const params = new URLSearchParams({
+        action:         'submitRSVP',
+        attending:      d.attending ? 'Yes' : 'No',
+        firstName:      d.firstName,
+        lastName:       d.lastName,
+        email:          d.email,
+        phone:          d.phone,
+        relation:       d.relation,
+        howKnow:        d.howKnow,
+        partySize:      d.partySize,
+        guestNames:     d.guests.map(g => g.name).join(', '),
+        guestAllergies: d.guests.map(g => g.allergy || 'None').join(', '),
+        wishes:         d.wishes,
+        timestamp:      d.timestamp,
+      });
+      await fetch(`${url}?${params.toString()}`);
+    } catch(e) { console.warn('RSVP sync failed:', e); }
+  }
+
+  showSuccess(d);
+}
+
+// ── SUCCESS ───────────────────────────────────────────────────
+function showSuccess(d) {
+  const box = document.getElementById('success-box');
+  if (d.attending) {
+    box.innerHTML = `
+      <span class="success-icon">🎊</span>
+      <div class="success-title">See you there!</div>
+      <div class="success-sub">${d.firstName} ${d.lastName}</div>
+      <div class="success-detail">
+        We can't wait to celebrate with you${d.partySize > 1 ? ` and your ${d.partySize - 1} guest${d.partySize > 2 ? 's' : ''}` : ''}.<br>
+        <strong style="color:var(--text)">${WEDDING_CONFIG.WEDDING_DATE}</strong><br>
+        ${WEDDING_CONFIG.VENUE_NAME}<br>${WEDDING_CONFIG.VENUE_ADDRESS}<br><br>
+        We'll be in touch closer to the date. ✦
+      </div>
+      <button class="btn-done" onclick="closeSuccess()">Done ✦</button>`;
+    fireConfetti();
+  } else {
+    box.innerHTML = `
+      <span class="success-icon">💌</span>
+      <div class="success-title">We understand</div>
+      <div class="success-sub">You'll be missed, ${d.firstName}</div>
+      <div class="success-detail">
+        Thank you for letting us know.<br>We hope to celebrate with you another time.<br><br>
+        Sending you all our love. ✦
+      </div>
+      <button class="btn-done" onclick="closeSuccess()">Close ✦</button>`;
+  }
+  document.getElementById('success-overlay').classList.add('show');
+}
+
+function closeSuccess() {
+  document.getElementById('success-overlay').classList.remove('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = false;
+  btn.textContent = 'Send your RSVP ✦';
+}
+
+// ── CONFETTI ─────────────────────────────────────────────────
+function fireConfetti() {
+  const colors = ['#d4829a','#f0b8c8','#88b5a0','#b8c8e8','#d0c0e8','#f5c8a8','#f5e8b0'];
+  for (let i = 0; i < 65; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const s = Math.random() * 7 + 4;
+    el.style.cssText = `left:${Math.random()*100}%;top:-10px;width:${s}px;height:${s}px;`
+      + `background:${colors[Math.floor(Math.random()*colors.length)]};`
+      + `border-radius:${Math.random()>.5?'50%':'2px'};`
+      + `animation-duration:${Math.random()*2.5+1.5}s;`
+      + `animation-delay:${Math.random()*0.5}s;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4500);
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg) {
+  let t = document.getElementById('rsvp-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'rsvp-toast';
+    t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);'
+      + 'background:#4a3540;color:white;padding:14px 22px;font-size:0.8rem;letter-spacing:0.05em;'
+      + 'z-index:400;border-left:3px solid #e8a0b0;transition:all 0.3s cubic-bezier(.22,1,.36,1);'
+      + 'border-radius:3px;white-space:nowrap;opacity:0;pointer-events:none;'
+      + 'box-shadow:0 4px 20px rgba(212,130,154,0.2);';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(-50%) translateY(80px)';
+  }, 3200);
+}
+
+// ── BOOT ─────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  init();
+  toggleAttendance('yes');
+});
+</script>
+</body>
+</html>

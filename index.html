@@ -1,0 +1,1023 @@
+<!-- ============================================================
+  WEDDING APP — CONFIGURATION
+  Edit WEDDING_CONFIG below before uploading to your hosting.
+  ============================================================ -->
+<script>
+  const WEDDING_CONFIG = {
+    // Paste your Google Apps Script Web App URL here:
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxMYebIN0VO5hYRZpAoLKR1Szsd8dTHB_GBOeUjmjdJh3CyFmoG7L_qryPWOTzTvTbC/exec',
+
+    // Full URL to the guest self check-in page (for QR code):
+    GUEST_CHECKIN_URL: 'https://aeygothergard.day/guest-checkin.html',
+
+    // Display name in the header:
+    COUPLE_NAMES: 'Aey & Gard Wedding',
+  };
+</script>
+<!-- ============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding Check-In — Reception</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --ivory: #fdf8f4;
+    --cream: #faeee8;
+    --gold: #d4829a;
+    --gold-light: #f0b8c8;
+    --gold-dark: #a85570;
+    --charcoal: #4a3540;
+    --muted: #9a7e88;
+    --rose: #e8a0b0;
+    --sage: #88b5a0;
+    --border: rgba(212,130,154,0.28);
+    --blush: #fce8ee;
+    --periwinkle: #b8c8e8;
+    --lavender: #d0c0e8;
+    --peach: #f5c8a8;
+    --butter: #f5e8b0;
+    --surface: #fdf4f6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: var(--ivory);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  /* ── FLORAL TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Soft watercolor blotch decorations */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -120px; right: -120px;
+    width: 500px; height: 500px;
+    background: radial-gradient(ellipse, rgba(232,160,176,0.18) 0%, rgba(208,192,232,0.12) 40%, transparent 70%);
+    pointer-events: none; z-index: 0;
+    border-radius: 50%;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    background: linear-gradient(135deg, #f9e8ee 0%, #ece8f8 50%, #e8f0f8 100%);
+    color: var(--charcoal);
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(212,130,154,0.3);
+    box-shadow: 0 2px 24px rgba(212,130,154,0.12);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--rose), var(--periwinkle), transparent);
+  }
+  .header-title { display: flex; flex-direction: column; gap: 2px; }
+  .header-title h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--charcoal);
+  }
+  .header-title span {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 400;
+  }
+  .header-nav { display: flex; gap: 8px; }
+  .nav-btn {
+    padding: 8px 20px;
+    border: 1px solid rgba(212,130,154,0.45);
+    background: rgba(255,255,255,0.6);
+    color: var(--charcoal);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+    backdrop-filter: blur(4px);
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: white;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 40px 48px;
+  }
+
+  /* ── CONFIG BANNER ── */
+  .config-banner {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .config-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 260px;
+  }
+  .config-banner label {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .config-banner input {
+    flex: 1;
+    background: var(--ivory);
+    border: 1px solid var(--border);
+    color: var(--charcoal);
+    padding: 8px 12px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.82rem;
+    min-width: 0;
+  }
+  .config-banner input:focus { outline: none; border-color: var(--gold); }
+  .btn-qr {
+    padding: 8px 18px;
+    background: var(--charcoal);
+    border: none;
+    color: var(--ivory);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-qr:hover { background: var(--gold); color: var(--charcoal); }
+  .config-banner-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #bbb;
+    flex-shrink: 0;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  .status-dot.connected { background: var(--sage); box-shadow: 0 0 6px var(--sage); }
+  .status-dot.error { background: var(--rose); box-shadow: 0 0 6px var(--rose); }
+  .status-msg {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .status-msg.connected { color: var(--sage); }
+  .status-msg.error { color: var(--rose); }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+    box-shadow: 0 2px 16px rgba(212,130,154,0.08);
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .stat-card:nth-child(1)::before { background: linear-gradient(90deg, var(--rose), var(--peach)); }
+  .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--sage), var(--periwinkle)); }
+  .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--lavender), var(--rose)); }
+  .stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--peach), var(--butter)); }
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.6rem;
+    font-weight: 400;
+    color: var(--charcoal);
+    line-height: 1;
+  }
+  .stat-sub { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+
+  /* ── SEARCH & ACTIONS BAR ── */
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 240px;
+  }
+  .search-wrap svg {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    opacity: 0.4;
+  }
+  .search-input {
+    width: 100%;
+    padding: 10px 16px 10px 42px;
+    border: 1px solid var(--border);
+    background: white;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.85rem;
+    color: var(--charcoal);
+    border-radius: 2px;
+  }
+  .search-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,130,154,0.12); }
+  .btn-action {
+    padding: 10px 20px;
+    border: 1px solid var(--border);
+    background: white;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: var(--charcoal);
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+  .btn-action:hover { border-color: var(--gold); background: var(--blush); }
+  .btn-action.primary { background: var(--gold); color: white; border-color: var(--gold); }
+  .btn-action.primary:hover { background: var(--gold-dark); border-color: var(--gold-dark); }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: white;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    border-radius: 2px;
+    box-shadow: 0 2px 20px rgba(212,130,154,0.08);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr {
+    background: linear-gradient(135deg, #f9e0e8 0%, #ede8f8 100%);
+    color: var(--charcoal);
+  }
+  thead th {
+    padding: 12px 18px;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 700;
+    text-align: left;
+    color: var(--gold-dark);
+  }
+  tbody tr {
+    border-bottom: 1px solid rgba(212,130,154,0.1);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: var(--blush); }
+  tbody td {
+    padding: 13px 18px;
+    font-size: 0.83rem;
+    vertical-align: middle;
+  }
+  td.name-cell {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  /* ── STATUS BADGE ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-radius: 20px;
+  }
+  .badge.checked-in {
+    background: rgba(136,181,160,0.18);
+    color: #5a9080;
+    border: 1px solid rgba(136,181,160,0.4);
+  }
+  .badge.pending {
+    background: rgba(212,130,154,0.12);
+    color: var(--gold-dark);
+    border: 1px solid rgba(212,130,154,0.3);
+  }
+
+  /* ── CHECK-IN BUTTON ── */
+  .btn-checkin {
+    padding: 5px 14px;
+    border: 1px solid var(--gold);
+    background: rgba(212,130,154,0.08);
+    color: var(--gold-dark);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 20px;
+  }
+  .btn-checkin:hover { background: var(--gold); color: white; }
+  .btn-checkin.done {
+    border-color: var(--sage);
+    color: #5a9080;
+    background: rgba(136,181,160,0.1);
+    cursor: default;
+    opacity: 0.7;
+  }
+
+  /* ── QR MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(74,53,64,0.55);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--ivory);
+    border: 1px solid var(--border);
+    padding: 40px;
+    max-width: 420px;
+    width: 90%;
+    position: relative;
+    text-align: center;
+    border-radius: 2px;
+    box-shadow: 0 20px 60px rgba(212,130,154,0.2);
+  }
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--rose), var(--lavender), var(--periwinkle));
+  }
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--charcoal);
+  }
+  .modal p { font-size: 0.8rem; color: var(--muted); margin-bottom: 24px; }
+  #qr-container { display: flex; justify-content: center; margin-bottom: 20px; }
+  #qr-container canvas, #qr-container img { border: 8px solid white; box-shadow: 0 4px 24px rgba(212,130,154,0.15); }
+  .modal-url {
+    font-size: 0.72rem;
+    color: var(--muted);
+    word-break: break-all;
+    background: var(--blush);
+    padding: 8px 12px;
+    margin-bottom: 20px;
+    border-radius: 2px;
+  }
+  .btn-close {
+    padding: 10px 28px;
+    background: var(--gold);
+    border: none;
+    color: white;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .btn-close:hover { background: var(--gold-dark); }
+
+  /* ── ADD GUEST MODAL ── */
+  .modal-form { text-align: left; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .form-group input, .form-group select {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    background: white;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.85rem;
+    color: var(--charcoal);
+    border-radius: 2px;
+  }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,130,154,0.1); }
+  .form-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-save {
+    padding: 10px 24px;
+    background: var(--gold);
+    border: none;
+    color: white;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-weight: 700;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .btn-save:hover { background: var(--gold-dark); }
+  .btn-cancel {
+    padding: 10px 24px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    background: var(--charcoal);
+    color: white;
+    padding: 14px 22px;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    z-index: 200;
+    border-left: 3px solid var(--rose);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(.22,1,.36,1);
+    pointer-events: none;
+    border-radius: 2px;
+    box-shadow: 0 4px 20px rgba(212,130,154,0.2);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── EMPTY STATE ── */
+  .empty-row td {
+    text-align: center;
+    padding: 60px 20px !important;
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── CONFIG BANNER ── */
+  .config-banner {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-radius: 2px;
+    box-shadow: 0 2px 12px rgba(212,130,154,0.07);
+  }
+  .config-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 260px;
+  }
+  .config-banner label {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .config-banner input {
+    flex: 1;
+    background: var(--ivory);
+    border: 1px solid var(--border);
+    color: var(--charcoal);
+    padding: 8px 12px;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.82rem;
+    min-width: 0;
+    border-radius: 2px;
+  }
+  .config-banner input:focus { outline: none; border-color: var(--gold); }
+  .btn-qr {
+    padding: 8px 18px;
+    background: var(--lavender);
+    border: 1px solid rgba(208,192,232,0.5);
+    color: #6a50a0;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    border-radius: 2px;
+  }
+  .btn-qr:hover { background: #b8a8d8; }
+  .config-banner-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #bbb;
+    flex-shrink: 0;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  .status-dot.connected { background: var(--sage); box-shadow: 0 0 6px var(--sage); }
+  .status-dot.error { background: var(--rose); box-shadow: 0 0 6px var(--rose); }
+  .status-msg {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .status-msg.connected { color: #5a9080; }
+  .status-msg.error { color: var(--gold-dark); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    header { padding: 20px 20px; flex-wrap: wrap; gap: 12px; }
+    .container { padding: 24px 16px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .config-banner { flex-direction: column; align-items: flex-start; }
+    .config-banner-left { flex-wrap: wrap; }
+    .config-banner input { min-width: 0; width: 100%; }
+    table { font-size: 0.78rem; }
+    thead th:nth-child(3), thead th:nth-child(4), tbody td:nth-child(3), tbody td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-title">
+    <span>Reception Management</span>
+    <h1>✦ Guest Check-In</h1>
+  </div>
+  <div class="header-nav">
+    <a href="index.html" class="nav-btn active">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Check-In
+    </a>
+    <a href="luckydraw.html" class="nav-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      Lucky Draw
+    </a>
+    <a href="seat-finder.html" class="nav-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10H3M7 15v5m10-5v5M5 20h14M3 6l3-3 3 3M15 3l3 3 3-3"/></svg>
+      Seat Finder
+    </a>
+  </div>
+</header>
+
+<div class="container">
+
+    <div class="config-banner-left">
+      <label>Self Check-In URL</label>
+      <input type="text" id="checkin-url" placeholder="https://aeygothergard.day/guest-checkin.html" />
+      <button class="btn-qr" onclick="showQRModal()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3m0 4h4m-4-4v4m-3 0h-1"/></svg>
+        QR Code
+      </button>
+    </div>
+    <div class="config-banner-right">
+      <div class="status-dot" id="status-dot"></div>
+      <span class="status-msg" id="status-msg">Connecting…</span>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Guests</div>
+      <div class="stat-value" id="stat-total">—</div>
+      <div class="stat-sub">on the list</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Checked In</div>
+      <div class="stat-value" id="stat-checked" style="color:var(--sage)">—</div>
+      <div class="stat-sub">arrived</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value" id="stat-pending" style="color:var(--gold)">—</div>
+      <div class="stat-sub">not yet arrived</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Seats Assigned</div>
+      <div class="stat-value" id="stat-seats">—</div>
+      <div class="stat-sub">seat numbers filled</div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="text" id="search-box" placeholder="Search by name, table, or phone…" oninput="filterGuests()">
+    </div>
+    <button class="btn-action" onclick="fetchGuests()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      Refresh
+    </button>
+    <button class="btn-action primary" onclick="openAddModal()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Guest
+    </button>
+    <button class="btn-action" onclick="syncRSVPs()" title="Re-import all attending RSVPs into the guest list (1 row per guest)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115-6.7L21 8M3 22v-6h6"/><path d="M21 12a9 9 0 01-15 6.7L3 16"/></svg>
+      Sync RSVPs
+    </button>
+    <button class="btn-action" onclick="exportCSV()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export CSV
+    </button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Table</th>
+          <th>Phone</th>
+          <th>Seat No.</th>
+          <th>Status</th>
+          <th>Check-In Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="guest-tbody">
+        <tr class="empty-row">
+          <td colspan="8">Connect your Google Sheet to load the guest list</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="modal-overlay" id="qr-modal">
+  <div class="modal">
+    <h2>Guest Self Check-In</h2>
+    <p>Display this QR code at the reception entrance</p>
+    <div id="qr-container"></div>
+    <div class="modal-url" id="qr-url-display"></div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn-close" onclick="printQR()">Print</button>
+      <button class="btn-close" style="background:transparent;border:1px solid var(--border);color:var(--charcoal)" onclick="closeQRModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD GUEST MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal modal-form">
+    <h2 style="margin-bottom:4px">Add Guest</h2>
+    <p>Manually add a guest to the list</p>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Full Name</label>
+        <input type="text" id="new-name" placeholder="e.g. Somchai Jaidee">
+      </div>
+      <div class="form-group">
+        <label>Table Number</label>
+        <input type="text" id="new-table" placeholder="e.g. 7">
+      </div>
+      <div class="form-group">
+        <label>Party Size (Seats)</label>
+        <input type="number" id="new-seats" placeholder="e.g. 2" min="1">
+      </div>
+      <div class="form-group full">
+        <label>Phone Number</label>
+        <input type="tel" id="new-phone" placeholder="e.g. 081-234-5678">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-save" onclick="addGuest()">Add Guest</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+let guests = [];
+let filteredGuests = [];
+let scriptUrl = WEDDING_CONFIG.SCRIPT_URL || '';
+
+// ── DEMO DATA (when no sheet connected) ──
+const demoGuests = [
+  { id: 1, name: 'Somchai Jaidee', table: '1', phone: '081-234-5678', seatNumber: 'A1', checkedIn: true, checkinTime: '17:32' },
+  { id: 2, name: 'Nattaya Srisuk', table: '1', phone: '089-876-5432', seatNumber: 'A2', checkedIn: true, checkinTime: '17:41' },
+  { id: 3, name: 'Pravit & Malee Thongchai', table: '2', phone: '062-111-2222', seatNumber: '', checkedIn: false, checkinTime: '' },
+  { id: 4, name: 'Wanchai Ruangrat', table: '3', phone: '095-333-4444', seatNumber: '', checkedIn: false, checkinTime: '' },
+  { id: 5, name: 'Apinya Wongsawat', table: '4', phone: '080-555-6666', seatNumber: 'D3', checkedIn: true, checkinTime: '17:55' },
+  { id: 6, name: 'Krit & Family Petcharat', table: '5', phone: '091-777-8888', seatNumber: '', checkedIn: false, checkinTime: '' },
+  { id: 7, name: 'Lalita Somboon', table: '6', phone: '083-999-0000', seatNumber: '', checkedIn: false, checkinTime: '' },
+];
+
+// ── CONNECT SHEET ──
+function connectSheet() { fetchGuests(); }
+
+async function fetchGuests() {
+  if (!scriptUrl) {
+    // Load demo data
+    guests = [...demoGuests];
+    filteredGuests = [...guests];
+    renderTable();
+    updateStats();
+    document.getElementById('status-dot').className = 'status-dot error';
+    document.getElementById('status-msg').className = 'status-msg error';
+    document.getElementById('status-msg').textContent = 'No sheet configured';
+    showToast('Showing demo data — set SCRIPT_URL in WEDDING_CONFIG');
+    return;
+  }
+  try {
+    showToast('Fetching guest list…');
+    const res = await fetch(`${scriptUrl}?action=getGuests`);
+    const data = await res.json();
+    guests = data.guests || [];
+    filteredGuests = [...guests];
+    renderTable();
+    updateStats();
+    document.getElementById('status-dot').className = 'status-dot connected';
+    document.getElementById('status-msg').className = 'status-msg connected';
+    document.getElementById('status-msg').textContent = 'Live sheet connected';
+    showToast(`✓ Loaded ${guests.length} guests`);
+  } catch(e) {
+    document.getElementById('status-dot').className = 'status-dot error';
+    document.getElementById('status-msg').className = 'status-msg error';
+    document.getElementById('status-msg').textContent = 'Sheet not connected';
+    showToast('Connection failed — check your Script URL');
+  }
+}
+
+// ── CHECK-IN ──
+async function checkInGuest(id) {
+  const guest = guests.find(g => g.id == id);
+  if (!guest || guest.checkedIn) return;
+  const now = new Date();
+  const time = now.toTimeString().slice(0,5);
+  guest.checkedIn = true;
+  guest.checkinTime = time;
+
+  if (scriptUrl) {
+    try {
+      await fetch(`${scriptUrl}?action=checkIn&id=${id}&time=${time}`);
+    } catch(e) { /* offline fallback */ }
+  }
+
+  renderTable();
+  updateStats();
+  showToast(`✓ ${guest.name} checked in`);
+  saveToLocalStorage();
+}
+
+// ── ADD GUEST ──
+function openAddModal() { document.getElementById('add-modal').classList.add('open'); }
+function closeAddModal() { document.getElementById('add-modal').classList.remove('open'); }
+
+async function addGuest() {
+  const name = document.getElementById('new-name').value.trim();
+  const table = document.getElementById('new-table').value.trim();
+  const seats = parseInt(document.getElementById('new-seats').value) || 1;
+  const phone = document.getElementById('new-phone').value.trim();
+  if (!name) { showToast('Please enter a guest name'); return; }
+
+  const newGuest = {
+    id: Date.now(),
+    name, table, phone, seatNumber: '',
+    checkedIn: false, checkinTime: ''
+  };
+  guests.push(newGuest);
+  filteredGuests = [...guests];
+  renderTable();
+  updateStats();
+  closeAddModal();
+  showToast(`✓ ${name} added to guest list`);
+  saveToLocalStorage();
+
+  // Clear form
+  ['new-name','new-table','new-seats','new-phone'].forEach(id => document.getElementById(id).value = '');
+
+  if (scriptUrl) {
+    try {
+      await fetch(`${scriptUrl}?action=addGuest&name=${encodeURIComponent(name)}&table=${table}&phone=${encodeURIComponent(phone)}&seats=${seats}`);
+    } catch(e) {}
+  }
+}
+
+// ── FILTER ──
+function filterGuests() {
+  const q = document.getElementById('search-box').value.toLowerCase();
+  filteredGuests = guests.filter(g =>
+    g.name.toLowerCase().includes(q) ||
+    (g.table && g.table.toString().includes(q)) ||
+    (g.phone && g.phone.includes(q))
+  );
+  renderTable();
+}
+
+// ── RENDER TABLE ──
+function renderTable() {
+  const tbody = document.getElementById('guest-tbody');
+  if (!filteredGuests.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No guests found</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filteredGuests.map((g, i) => `
+    <tr>
+      <td style="color:var(--muted);font-size:0.75rem">${i+1}</td>
+      <td class="name-cell">${g.name}</td>
+      <td><span style="background:var(--cream);padding:2px 8px;font-size:0.78rem">Table ${g.table || '—'}</span></td>
+      <td style="color:var(--muted);font-size:0.8rem">${g.phone || '—'}</td>
+      <td style="text-align:center;font-size:0.8rem;font-weight:600;color:var(--gold-dark)">${g.seatNumber || '—'}</td>
+      <td>
+        ${g.checkedIn
+          ? `<span class="badge checked-in">✓ Checked In</span>`
+          : `<span class="badge pending">Pending</span>`}
+      </td>
+      <td style="color:var(--muted);font-size:0.8rem">${g.checkinTime || '—'}</td>
+      <td>
+        <button class="btn-checkin ${g.checkedIn ? 'done' : ''}"
+          onclick="${g.checkedIn ? '' : `checkInGuest(${g.id})`}"
+          ${g.checkedIn ? 'disabled' : ''}>
+          ${g.checkedIn ? 'Done' : 'Check In'}
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── STATS ──
+function updateStats() {
+  document.getElementById('stat-total').textContent = guests.length || '0';
+  const checked = guests.filter(g => g.checkedIn).length;
+  document.getElementById('stat-checked').textContent = checked;
+  document.getElementById('stat-pending').textContent = guests.length - checked;
+  document.getElementById('stat-seats').textContent = guests.filter(g => g.seatNumber).length;
+}
+
+// ── QR CODE ──
+function showQRModal() {
+  const url = WEDDING_CONFIG.GUEST_CHECKIN_URL || window.location.href;
+  document.getElementById('qr-url-display').textContent = url;
+  document.getElementById('qr-container').innerHTML = '';
+  new QRCode(document.getElementById('qr-container'), {
+    text: url, width: 200, height: 200,
+    colorDark: '#2c2c2c', colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  document.getElementById('qr-modal').classList.add('open');
+}
+function closeQRModal() { document.getElementById('qr-modal').classList.remove('open'); }
+function printQR() { window.print(); }
+
+// ── SYNC RSVPs → GUESTS ──
+async function syncRSVPs() {
+  if (!scriptUrl || scriptUrl.includes('YOUR_SCRIPT_ID')) {
+    showToast('No sheet configured — set SCRIPT_URL in WEDDING_CONFIG');
+    return;
+  }
+  showToast('Syncing RSVPs to guest list…');
+  try {
+    const res  = await fetch(`${scriptUrl}?action=syncRSVPsToGuests`);
+    const data = await res.json();
+    if (data.success) {
+      showToast(`✓ Sync complete — ${data.added} new guest row${data.added !== 1 ? 's' : ''} added`);
+      await fetchGuests();
+    } else {
+      showToast('Sync failed: ' + (data.error || 'unknown error'));
+    }
+  } catch(e) {
+    showToast('Sync failed — check your Script URL');
+  }
+}
+
+// ── EXPORT CSV ──
+function exportCSV() {
+  if (!guests.length) { showToast('No guests to export'); return; }
+  const rows = [['Name','Table','Phone','Seats','Status','Check-In Time']];
+  guests.forEach(g => rows.push([
+    g.name, g.table || '', g.phone || '', g.seats || 1,
+    g.checkedIn ? 'Checked In' : 'Pending', g.checkinTime || ''
+  ]));
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'wedding-guests.csv';
+  a.click();
+  showToast('✓ CSV exported');
+}
+
+// ── LOCAL STORAGE ──
+function saveToLocalStorage() {
+  localStorage.setItem('wedding-guests', JSON.stringify(guests));
+}
+function loadFromLocalStorage() {
+  const saved = localStorage.getItem('wedding-guests');
+  if (saved) {
+    guests = JSON.parse(saved);
+    filteredGuests = [...guests];
+    renderTable();
+    updateStats();
+  } else {
+    // load demo data on first visit
+    guests = [...demoGuests];
+    filteredGuests = [...guests];
+    renderTable();
+    updateStats();
+  }
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+loadFromLocalStorage();
+if (scriptUrl && scriptUrl !== 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec') fetchGuests();
+</script>
+</body>
+</html>

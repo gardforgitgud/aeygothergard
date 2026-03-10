@@ -1,0 +1,663 @@
+<!-- ============================================================
+  WEDDING APP — CONFIGURATION
+  Edit WEDDING_CONFIG below before uploading to your hosting.
+  ============================================================ -->
+<script>
+  const WEDDING_CONFIG = {
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxMYebIN0VO5hYRZpAoLKR1Szsd8dTHB_GBOeUjmjdJh3CyFmoG7L_qryPWOTzTvTbC/exec',
+    COUPLE_NAMES: 'Aey & Gard Wedding',
+
+    // ── SEAT MAP CONFIGURATION ──
+    // Define tables and their seats. Each table has:
+    //   id: unique identifier (matches Table column in Guests sheet)
+    //   label: display name
+    //   x, y: position percentage on the map (0-100)
+    //   seats: array of seat identifiers (must match Seat Number column in Guests sheet)
+    //   shape: 'round' | 'rect'
+    TABLES: [
+      { id: '1',  label: 'Table 1',        x: 20, y: 20, shape: 'round', seats: ['1-1','1-2','1-3','1-4','1-5','1-6','1-7','1-8'] },
+      { id: '2',  label: 'Table 2',        x: 50, y: 20, shape: 'round', seats: ['2-1','2-2','2-3','2-4','2-5','2-6','2-7','2-8'] },
+      { id: '3',  label: 'Table 3',        x: 80, y: 20, shape: 'round', seats: ['3-1','3-2','3-3','3-4','3-5','3-6','3-7','3-8'] },
+      { id: '4',  label: 'Table 4',        x: 20, y: 55, shape: 'round', seats: ['4-1','4-2','4-3','4-4','4-5','4-6','4-7','4-8'] },
+      { id: '5',  label: 'Table 5',        x: 50, y: 55, shape: 'round', seats: ['5-1','5-2','5-3','5-4','5-5','5-6','5-7','5-8'] },
+      { id: '6',  label: 'Table 6',        x: 80, y: 55, shape: 'round', seats: ['6-1','6-2','6-3','6-4','6-5','6-6','6-7','6-8'] },
+      { id: 'VIP', label: 'VIP / Couple',  x: 50, y: 86, shape: 'rect',  seats: ['VIP-1','VIP-2','VIP-3','VIP-4','VIP-5','VIP-6'] },
+    ],
+  };
+</script>
+<!-- ============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Find Your Seat — Wedding</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #fdf4f8;
+    --cream: #fce8ee;
+    --gold: #d4829a;
+    --gold-light: #f0b8c8;
+    --gold-dark: #a85570;
+    --charcoal: #4a3540;
+    --muted: #b09098;
+    --rose: #e8a0b0;
+    --sage: #88b5a0;
+    --border: rgba(212,130,154,0.25);
+    --lavender: #d0c0e8;
+    --periwinkle: #b8c8e8;
+    --peach: #f5c8a8;
+    --bg-start: #fef2f6;
+    --bg-end: #f2eefa;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { font-family: 'Lato', sans-serif; background: linear-gradient(135deg, var(--bg-start) 0%, #f8f0fa 50%, #f0f4fe 100%); color: var(--charcoal); min-height: 100vh; overflow-x: hidden; }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(14px);
+    padding: 18px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 24px rgba(212,130,154,0.1);
+  }
+  header::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--rose), var(--lavender), var(--periwinkle), var(--peach));
+  }
+  .header-title h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 500; letter-spacing: 0.03em; color: var(--charcoal); }
+  .header-title span { font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 2px; }
+  .header-nav { display: flex; gap: 8px; }
+  .nav-btn {
+    padding: 7px 16px; border: 1px solid rgba(212,130,154,0.4); background: rgba(255,255,255,0.6);
+    color: var(--charcoal); font-family: 'Lato', sans-serif; font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; cursor: pointer; transition: all 0.25s; text-decoration: none;
+    display: flex; align-items: center; gap: 6px; border-radius: 2px; backdrop-filter: blur(4px);
+  }
+  .nav-btn:hover, .nav-btn.active { background: var(--gold); border-color: var(--gold); color: white; }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    min-height: calc(100vh - 66px);
+  }
+
+  /* ── LEFT PANEL ── */
+  .panel {
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    padding: 28px 24px;
+    gap: 20px;
+  }
+
+  .panel-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 500; color: var(--charcoal); }
+  .panel-sub { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.05em; margin-top: 2px; }
+
+  /* Search box */
+  .search-wrap { position: relative; }
+  .search-wrap svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .search-input {
+    width: 100%; padding: 14px 16px 14px 44px;
+    border: 1px solid var(--border); background: white;
+    font-family: 'Lato', sans-serif; font-size: 0.95rem; color: var(--charcoal);
+    border-radius: 3px; transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+  .search-input::placeholder { color: var(--muted); }
+  .search-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,130,154,0.12); }
+
+  /* Result list */
+  .results { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; padding-right: 4px; }
+  .results::-webkit-scrollbar { width: 4px; }
+  .results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .result-card {
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(212,130,154,0.15);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 14px;
+    animation: slideIn 0.25s ease both;
+  }
+  @keyframes slideIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+  .result-card:hover { border-color: var(--gold); background: white; box-shadow: 0 2px 14px rgba(212,130,154,0.15); }
+  .result-card.selected { border-color: var(--gold); background: rgba(212,130,154,0.06); box-shadow: 0 0 0 2px rgba(212,130,154,0.2); }
+
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose), var(--lavender));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-size: 0.9rem; color: white; flex-shrink: 0;
+  }
+  .result-info { flex: 1; min-width: 0; }
+  .result-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400; color: var(--charcoal); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .result-meta { font-size: 0.72rem; color: var(--muted); margin-top: 2px; letter-spacing: 0.04em; }
+  .result-seat-badge {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+    padding: 3px 10px; border-radius: 20px; flex-shrink: 0; white-space: nowrap;
+    background: rgba(212,130,154,0.1); border: 1px solid rgba(212,130,154,0.3); color: var(--gold-dark);
+  }
+  .result-seat-badge.no-seat { background: transparent; border-color: rgba(176,144,152,0.3); color: var(--muted); }
+
+  .hint-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .hint-icon { font-size: 2.4rem; margin-bottom: 10px; display: block; opacity: 0.5; }
+  .hint-state p { font-size: 0.82rem; letter-spacing: 0.04em; line-height: 1.6; }
+
+  /* Seat detail panel */
+  .seat-detail {
+    padding: 20px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.3s ease both;
+    box-shadow: 0 4px 24px rgba(212,130,154,0.12);
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  .seat-detail::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--rose),var(--lavender),var(--periwinkle)); }
+  .detail-label { font-size:0.6rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--gold); margin-bottom:4px; }
+  .detail-name { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:500; color:var(--charcoal); margin-bottom:12px; }
+  .detail-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .chip {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:5px 12px; border-radius:20px; font-size:0.72rem; font-weight:700; letter-spacing:0.08em;
+  }
+  .chip-table { background:rgba(136,181,160,0.15); border:1px solid rgba(136,181,160,0.4); color:#4a8070; }
+  .chip-seat  { background:rgba(212,130,154,0.12); border:1px solid rgba(212,130,154,0.35); color:var(--gold-dark); }
+  .chip-none  { background:rgba(176,144,152,0.1); border:1px solid rgba(176,144,152,0.3); color:var(--muted); }
+  .detail-hint { font-size:0.75rem; color:var(--muted); line-height:1.6; }
+
+  /* ── RIGHT: MAP AREA ── */
+  .map-area {
+    position: relative;
+    padding: 32px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+
+  .map-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .map-header h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 500; color: var(--charcoal); }
+
+  .map-legend { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .legend-dot.normal   { background: rgba(212,130,154,0.25); border: 1px solid rgba(212,130,154,0.5); }
+  .legend-dot.selected { background: var(--gold); }
+  .legend-dot.stage    { background: linear-gradient(135deg, var(--lavender), var(--periwinkle)); }
+
+  /* Map container */
+  .map-container {
+    position: relative;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 40px rgba(212,130,154,0.1);
+    overflow: hidden;
+    flex: 1;
+    min-height: 480px;
+  }
+
+  /* Stage */
+  .map-stage {
+    position: absolute;
+    top: 12px; left: 50%; transform: translateX(-50%);
+    padding: 8px 32px;
+    background: linear-gradient(135deg, var(--lavender), var(--periwinkle));
+    border-radius: 3px;
+    font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: white; font-weight: 700;
+    box-shadow: 0 2px 12px rgba(176,144,232,0.3);
+    white-space: nowrap;
+  }
+
+  /* Table element on map */
+  .map-table {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .map-table:hover { transform: translate(-50%, -50%) scale(1.08); z-index: 5; }
+  .map-table.highlighted { transform: translate(-50%, -50%) scale(1.12); z-index: 10; }
+
+  .table-shape {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em;
+    color: var(--charcoal);
+    transition: all 0.3s;
+    position: relative;
+  }
+  .table-shape.round { border-radius: 50%; }
+  .table-shape.rect  { border-radius: 6px; }
+
+  .table-shape-inner {
+    background: rgba(255,255,255,0.85);
+    border: 1.5px solid rgba(212,130,154,0.35);
+    transition: all 0.3s;
+  }
+  .table-shape-inner.round { border-radius: 50%; width: 64px; height: 64px; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 12px rgba(212,130,154,0.1); }
+  .table-shape-inner.rect  { border-radius: 6px; padding: 8px 18px; white-space: nowrap; box-shadow: 0 2px 12px rgba(212,130,154,0.1); }
+
+  .map-table.highlighted .table-shape-inner {
+    background: rgba(212,130,154,0.15);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212,130,154,0.25), 0 4px 20px rgba(212,130,154,0.25);
+  }
+
+  .table-label {
+    position: absolute;
+    bottom: -18px; left: 50%; transform: translateX(-50%);
+    font-size: 0.58rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); white-space: nowrap;
+  }
+
+  /* Seats dots around table */
+  .seat-dot {
+    position: absolute;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: rgba(212,130,154,0.25);
+    border: 1px solid rgba(212,130,154,0.45);
+    transition: all 0.35s;
+  }
+  .seat-dot.target {
+    background: var(--gold);
+    border-color: var(--gold-dark);
+    box-shadow: 0 0 0 3px rgba(212,130,154,0.3), 0 0 16px rgba(212,130,154,0.6);
+    transform: scale(1.4);
+    animation: seatPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes seatPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(212,130,154,0.3), 0 0 16px rgba(212,130,154,0.5); }
+    50%       { box-shadow: 0 0 0 6px rgba(212,130,154,0.15), 0 0 28px rgba(212,130,154,0.4); }
+  }
+
+  /* Spotlight beam */
+  .spotlight {
+    position: absolute;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,130,154,0.18) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    transition: all 0.5s cubic-bezier(.22,1,.36,1);
+    opacity: 0;
+    z-index: 2;
+  }
+  .spotlight.show { opacity: 1; }
+
+  /* Arrow / connector line */
+  .map-arrow {
+    position: absolute;
+    pointer-events: none;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .map-arrow.show { opacity: 1; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .map-area { padding: 20px 16px; }
+    header { padding: 16px 20px; }
+    .map-container { min-height: 340px; }
+  }
+  @media (max-width: 600px) {
+    .panel { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-title">
+    <span>Wedding Celebration</span>
+    <h1>✦ Seat Finder</h1>
+  </div>
+  <div class="header-nav">
+    <a href="index.html" class="nav-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Check-In
+    </a>
+    <a href="luckydraw.html" class="nav-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      Lucky Draw
+    </a>
+    <a href="seat-finder.html" class="nav-btn active">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10H3M7 15v5m10-5v5M5 20h14M3 6l3-3 3 3M15 3l3 3 3-3"/></svg>
+      Seat Finder
+    </a>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="panel">
+    <div>
+      <div class="panel-title">Find Your Seat</div>
+      <div class="panel-sub">Type your name — your table and seat will light up on the map</div>
+    </div>
+
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input class="search-input" type="text" id="search-input"
+        placeholder="e.g. Somchai…"
+        autocomplete="off" spellcheck="false"
+        oninput="onSearch()">
+    </div>
+
+    <div class="results" id="results">
+      <div class="hint-state">
+        <span class="hint-icon">✦</span>
+        <p>Type your name above to find your seat on the map</p>
+      </div>
+    </div>
+
+    <div id="seat-detail-wrap" style="display:none"></div>
+  </div>
+
+  <!-- ── RIGHT: MAP ── -->
+  <div class="map-area">
+    <div class="map-header">
+      <h2>Venue Floor Plan</h2>
+      <div class="map-legend">
+        <div class="legend-item"><div class="legend-dot normal"></div> Available seat</div>
+        <div class="legend-item"><div class="legend-dot selected"></div> Your seat</div>
+        <div class="legend-item"><div class="legend-dot stage"></div> Stage / Couple</div>
+      </div>
+    </div>
+
+    <div class="map-container" id="map-container">
+      <div class="map-stage">✦ Stage / Ceremony ✦</div>
+      <div class="spotlight" id="spotlight"></div>
+      <!-- tables injected by JS -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+const scriptUrl = WEDDING_CONFIG.SCRIPT_URL || '';
+let allGuests = [];
+let selectedGuest = null;
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', async () => {
+  renderMap();
+  await loadGuests();
+  document.getElementById('search-input').focus();
+});
+
+// ── LOAD GUESTS ──
+async function loadGuests() {
+  const isConfigured = scriptUrl && !scriptUrl.includes('YOUR_SCRIPT_ID');
+  if (isConfigured) {
+    try {
+      const res  = await fetch(`${scriptUrl}?action=getGuests`);
+      const data = await res.json();
+      allGuests  = data.guests || [];
+      return;
+    } catch(e) {}
+  }
+  // Fallback: localStorage
+  const saved = localStorage.getItem('wedding-guests');
+  if (saved) { allGuests = JSON.parse(saved); return; }
+  // Demo
+  allGuests = demoGuests();
+}
+
+function demoGuests() {
+  return [
+    { id:1, name:'Somchai Jaidee',          table:'1',   seatNumber:'1-1', checkedIn:true  },
+    { id:2, name:'Nattaya Srisuk',           table:'1',   seatNumber:'1-2', checkedIn:true  },
+    { id:3, name:'Pravit Thongchai',         table:'2',   seatNumber:'2-1', checkedIn:false },
+    { id:4, name:'Malee Thongchai',          table:'2',   seatNumber:'2-2', checkedIn:false },
+    { id:5, name:'Wanchai Ruangrat',         table:'3',   seatNumber:'3-1', checkedIn:false },
+    { id:6, name:'Apinya Wongsawat',         table:'4',   seatNumber:'4-3', checkedIn:false },
+    { id:7, name:'Krit Petcharat',           table:'5',   seatNumber:'5-1', checkedIn:false },
+    { id:8, name:'Lalita Somboon',           table:'6',   seatNumber:'6-2', checkedIn:false },
+    { id:9, name:'Aey (Bride)',              table:'VIP', seatNumber:'VIP-1',checkedIn:false},
+    { id:10,name:'Gard (Groom)',             table:'VIP', seatNumber:'VIP-2',checkedIn:false},
+  ];
+}
+
+// ── SEARCH ──
+function onSearch() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const results = document.getElementById('results');
+
+  if (!q) {
+    results.innerHTML = `<div class="hint-state"><span class="hint-icon">✦</span><p>Type your name above to find your seat on the map</p></div>`;
+    clearHighlight();
+    return;
+  }
+
+  const matches = allGuests.filter(g => g.name.toLowerCase().includes(q));
+
+  if (!matches.length) {
+    results.innerHTML = `<div class="hint-state"><span class="hint-icon">🔍</span><p>No guest found for "<strong style="color:var(--charcoal)">${escHtml(q)}</strong>".<br>Try a different spelling or ask staff.</p></div>`;
+    clearHighlight();
+    return;
+  }
+
+  results.innerHTML = matches.map((g, i) => `
+    <div class="result-card ${selectedGuest && selectedGuest.id === g.id ? 'selected' : ''}"
+         onclick="selectGuest(${g.id})"
+         style="animation-delay:${i*0.04}s">
+      <div class="avatar">${initials(g.name)}</div>
+      <div class="result-info">
+        <div class="result-name">${escHtml(g.name)}</div>
+        <div class="result-meta">
+          ${g.table ? `Table ${g.table}` : 'No table assigned'}
+        </div>
+      </div>
+      ${g.seatNumber
+        ? `<div class="result-seat-badge">Seat ${g.seatNumber}</div>`
+        : `<div class="result-seat-badge no-seat">No seat yet</div>`}
+    </div>
+  `).join('');
+
+  // Auto-select if single result
+  if (matches.length === 1) selectGuest(matches[0].id);
+}
+
+// ── SELECT GUEST ──
+function selectGuest(id) {
+  selectedGuest = allGuests.find(g => g.id == id);
+  if (!selectedGuest) return;
+
+  // Refresh result cards selection state
+  document.querySelectorAll('.result-card').forEach(c => c.classList.remove('selected'));
+  const cards = document.querySelectorAll('.result-card');
+  // re-run to update selected class
+  onSearchRefreshSelected();
+
+  // Show detail panel
+  showSeatDetail(selectedGuest);
+
+  // Highlight on map
+  highlightSeat(selectedGuest);
+}
+
+function onSearchRefreshSelected() {
+  document.querySelectorAll('.result-card').forEach(card => {
+    const onclick = card.getAttribute('onclick') || '';
+    const m = onclick.match(/selectGuest\((\d+)\)/);
+    if (m && selectedGuest && parseInt(m[1]) === selectedGuest.id) {
+      card.classList.add('selected');
+    }
+  });
+}
+
+// ── SEAT DETAIL ──
+function showSeatDetail(g) {
+  const wrap = document.getElementById('seat-detail-wrap');
+  wrap.style.display = 'block';
+  wrap.innerHTML = `
+    <div class="seat-detail">
+      <div class="detail-label">Your seat</div>
+      <div class="detail-name">${escHtml(g.name)}</div>
+      <div class="detail-chips">
+        ${g.table
+          ? `<span class="chip chip-table">🍽 Table ${g.table}</span>`
+          : `<span class="chip chip-none">No table assigned</span>`}
+        ${g.seatNumber
+          ? `<span class="chip chip-seat">✦ Seat ${g.seatNumber}</span>`
+          : `<span class="chip chip-none">Seat TBD</span>`}
+      </div>
+      <div class="detail-hint">
+        ${g.seatNumber
+          ? `Your seat is highlighted on the map. Look for the glowing dot! ✨`
+          : `Your seat number hasn't been assigned yet. Please check with the staff at the reception desk.`}
+      </div>
+    </div>`;
+}
+
+// ── MAP: RENDER TABLES ──
+function renderMap() {
+  const container = document.getElementById('map-container');
+  const tables = WEDDING_CONFIG.TABLES || [];
+
+  tables.forEach(t => {
+    const el = document.createElement('div');
+    el.className = 'map-table';
+    el.id = `table-${t.id}`;
+    el.style.left = t.x + '%';
+    el.style.top  = t.y + '%';
+    el.onclick = () => filterByTable(t.id);
+
+    const seatDots = buildSeatDots(t);
+    const shapeClass = t.shape === 'rect' ? 'rect' : 'round';
+
+    el.innerHTML = `
+      ${seatDots}
+      <div class="table-shape ${shapeClass}">
+        <div class="table-shape-inner ${shapeClass}">${t.label}</div>
+      </div>
+      <div class="table-label">${t.label}</div>
+    `;
+    container.appendChild(el);
+  });
+}
+
+function buildSeatDots(table) {
+  const seats = table.seats || [];
+  const count = seats.length;
+  let html = '';
+
+  if (table.shape === 'round') {
+    const r = 46; // radius from centre in px
+    seats.forEach((seat, i) => {
+      const angle = (i / count) * Math.PI * 2 - Math.PI / 2;
+      const cx = Math.round(r * Math.cos(angle));
+      const cy = Math.round(r * Math.sin(angle));
+      html += `<div class="seat-dot" id="seat-${escId(seat)}" data-seat="${seat}" style="left:calc(50% + ${cx}px - 5px);top:calc(50% + ${cy}px - 5px)"></div>`;
+    });
+  } else {
+    // Rect table: seats above and below
+    const half   = Math.ceil(count / 2);
+    const spacing = 26;
+    const totalW  = (half - 1) * spacing;
+    seats.forEach((seat, i) => {
+      const row = i < half ? 0 : 1;
+      const col = i < half ? i : i - half;
+      const x   = -totalW / 2 + col * spacing;
+      const y   = row === 0 ? -28 : 28;
+      html += `<div class="seat-dot" id="seat-${escId(seat)}" data-seat="${seat}" style="left:calc(50% + ${x}px - 5px);top:calc(50% + ${y}px - 5px)"></div>`;
+    });
+  }
+  return html;
+}
+
+// ── HIGHLIGHT SEAT ON MAP ──
+function highlightSeat(guest) {
+  // Clear all highlights
+  clearHighlight();
+
+  if (!guest.seatNumber || !guest.table) return;
+
+  const tableConf = (WEDDING_CONFIG.TABLES || []).find(t => String(t.id) === String(guest.table));
+  if (!tableConf) return;
+
+  // Highlight table wrapper
+  const tableEl = document.getElementById(`table-${tableConf.id}`);
+  if (tableEl) tableEl.classList.add('highlighted');
+
+  // Highlight specific seat dot
+  const seatEl = document.getElementById(`seat-${escId(guest.seatNumber)}`);
+  if (seatEl) seatEl.classList.add('target');
+
+  // Move spotlight to table position
+  const spotlight = document.getElementById('spotlight');
+  spotlight.style.left = tableConf.x + '%';
+  spotlight.style.top  = tableConf.y + '%';
+  spotlight.style.width  = tableConf.shape === 'rect' ? '200px' : '150px';
+  spotlight.style.height = tableConf.shape === 'rect' ? '140px' : '150px';
+  spotlight.classList.add('show');
+
+  // Scroll map into view on mobile
+  const container = document.getElementById('map-container');
+  container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearHighlight() {
+  document.querySelectorAll('.map-table.highlighted').forEach(el => el.classList.remove('highlighted'));
+  document.querySelectorAll('.seat-dot.target').forEach(el => el.classList.remove('target'));
+  document.getElementById('spotlight').classList.remove('show');
+}
+
+// ── FILTER BY TABLE (clicking table on map) ──
+function filterByTable(tableId) {
+  const input = document.getElementById('search-input');
+  // Show everyone at that table
+  const atTable = allGuests.filter(g => String(g.table) === String(tableId));
+  const results = document.getElementById('results');
+  if (!atTable.length) return;
+
+  results.innerHTML = atTable.map((g, i) => `
+    <div class="result-card" onclick="selectGuest(${g.id})" style="animation-delay:${i*0.04}s">
+      <div class="avatar">${initials(g.name)}</div>
+      <div class="result-info">
+        <div class="result-name">${escHtml(g.name)}</div>
+        <div class="result-meta">Table ${g.table}</div>
+      </div>
+      ${g.seatNumber
+        ? `<div class="result-seat-badge">Seat ${g.seatNumber}</div>`
+        : `<div class="result-seat-badge no-seat">No seat yet</div>`}
+    </div>
+  `).join('');
+
+  input.value = '';
+  input.placeholder = `Guests at Table ${tableId}`;
+  setTimeout(() => { input.placeholder = 'e.g. Somchai…'; }, 4000);
+}
+
+// ── HELPERS ──
+function initials(name) {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escId(s) {
+  return String(s).replace(/[^a-zA-Z0-9-_]/g, '_');
+}
+</script>
+</body>
+</html>

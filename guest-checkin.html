@@ -1,0 +1,685 @@
+<!-- ============================================================
+  WEDDING APP — CONFIGURATION
+  Edit WEDDING_CONFIG below before uploading to your hosting.
+  ============================================================ -->
+<script>
+  const WEDDING_CONFIG = {
+    // Paste your Google Apps Script Web App URL here:
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxMYebIN0VO5hYRZpAoLKR1Szsd8dTHB_GBOeUjmjdJh3CyFmoG7L_qryPWOTzTvTbC/exec',
+
+    // Your names shown on the welcome screen:
+    COUPLE_NAMES: 'Aey & Gard Wedding',
+  };
+</script>
+<!-- ============================================================ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Welcome — Wedding Check-In</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Lato:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fef6f8;
+    --surface: #fff8fa;
+    --surface2: #fdeef3;
+    --gold: #d4829a;
+    --gold-light: #f0b8c8;
+    --gold-dim: rgba(212,130,154,0.15);
+    --ivory: #4a3540;
+    --muted: #b09098;
+    --sage: #88b5a0;
+    --rose: #e8a0b0;
+    --border: rgba(212,130,154,0.22);
+    --lavender: #d0c0e8;
+    --periwinkle: #b8c8e8;
+    --peach: #f5c8a8;
+    --butter: #f5e8b0;
+    --text: #4a3540;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Lato', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overscroll-behavior: none;
+  }
+
+  /* ── WATERCOLOR BACKGROUND ORBS ── */
+  .bg-orbs {
+    position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+  }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.55;
+    animation: drift 14s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 500px; height: 500px; background: radial-gradient(ellipse, #fce0e8, #faeef8); top: -150px; left: -100px; animation-delay: 0s; }
+  .orb-2 { width: 380px; height: 380px; background: radial-gradient(ellipse, #e8eefa, #d8f0f0); bottom: -100px; right: -80px; animation-delay: -5s; }
+  .orb-3 { width: 280px; height: 280px; background: radial-gradient(ellipse, #fef0d8, #fce8d0); top: 40%; left: 50%; animation-delay: -10s; opacity: 0.45; }
+  .orb-4 { width: 200px; height: 200px; background: radial-gradient(ellipse, #e8e0f8, #d0e8f8); top: 20%; right: 5%; animation-delay: -3s; opacity: 0.4; }
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(24px, 18px) scale(1.04); }
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px 48px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+    padding: 52px 0 36px;
+  }
+  .header-eyebrow {
+    font-size: 0.62rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.1s forwards;
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 8vw, 3.2rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.2s forwards;
+  }
+  .header-title em { font-style: italic; color: var(--gold); }
+  .header-sub {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 10px;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.3s forwards;
+  }
+  .header-divider {
+    width: 60px; height: 2px;
+    background: linear-gradient(90deg, var(--rose), var(--lavender), var(--periwinkle));
+    margin: 20px auto 0;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.35s forwards;
+    border-radius: 2px;
+  }
+
+  /* ── SEARCH CARD ── */
+  .search-card {
+    width: 100%;
+    max-width: 480px;
+    background: rgba(255,255,255,0.88);
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.4s forwards;
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    box-shadow: 0 4px 30px rgba(212,130,154,0.1);
+    backdrop-filter: blur(8px);
+  }
+  .search-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--rose), var(--lavender), var(--periwinkle));
+  }
+  .search-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .search-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+  }
+  .search-input-wrap {
+    position: relative;
+    flex: 1;
+  }
+  .search-icon {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    padding: 16px 16px 16px 44px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-size: 1rem;
+    border-radius: 3px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .search-input::placeholder { color: var(--muted); }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(212,130,154,0.12);
+  }
+  .btn-search {
+    padding: 16px 20px;
+    background: var(--gold);
+    border: none;
+    color: white;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-search:hover { background: #c0708a; }
+  .btn-search:active { transform: scale(0.97); }
+
+  /* ── RESULTS ── */
+  .results-wrap {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    animation: fadeUp 0.4s ease 0.5s forwards;
+  }
+  .results-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+    padding: 0 2px;
+  }
+
+  /* ── GUEST CARD ── */
+  .guest-card {
+    background: rgba(255,255,255,0.9);
+    border: 1px solid var(--border);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    animation: slideIn 0.3s ease forwards;
+    opacity: 0;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 16px rgba(212,130,154,0.07);
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .guest-card:nth-child(2) { animation-delay: 0.05s; }
+  .guest-card:nth-child(3) { animation-delay: 0.1s; }
+  .guest-card:nth-child(4) { animation-delay: 0.15s; }
+  .guest-card:nth-child(5) { animation-delay: 0.2s; }
+
+  .guest-card.already-in {
+    border-color: rgba(136,181,160,0.35);
+    background: rgba(136,181,160,0.08);
+  }
+
+  .guest-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose), var(--lavender));
+    border: 2px solid rgba(255,255,255,0.8);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(212,130,154,0.25);
+  }
+  .guest-info { flex: 1; min-width: 0; }
+  .guest-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+  .guest-meta {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+  }
+  .guest-meta span + span::before { content: ' · '; }
+
+  .btn-checkin {
+    padding: 10px 18px;
+    background: rgba(212,130,154,0.1);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .btn-checkin:hover { background: var(--gold); color: white; }
+  .btn-checkin:active { transform: scale(0.95); }
+  .btn-checkin.done {
+    background: rgba(136,181,160,0.12);
+    border-color: rgba(136,181,160,0.4);
+    color: #5a9080;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* ── EMPTY / HINT STATES ── */
+  .state-hint {
+    text-align: center;
+    padding: 32px 20px;
+    color: var(--muted);
+  }
+  .state-hint .icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: block;
+    opacity: 0.6;
+  }
+  .state-hint p { font-size: 0.85rem; letter-spacing: 0.03em; }
+
+  /* ── SUCCESS OVERLAY ── */
+  .success-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(250,238,242,0.92);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .success-overlay.show { opacity: 1; pointer-events: all; }
+  .success-box {
+    text-align: center;
+    padding: 48px 40px;
+    max-width: 340px;
+    width: 90%;
+    background: white;
+    border: 1px solid rgba(212,130,154,0.3);
+    position: relative;
+    transform: scale(0.9);
+    transition: transform 0.4s cubic-bezier(.22,1,.36,1);
+    border-radius: 4px;
+    box-shadow: 0 20px 60px rgba(212,130,154,0.2);
+  }
+  .success-overlay.show .success-box { transform: scale(1); }
+  .success-box::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--rose), var(--lavender), var(--periwinkle));
+    border-radius: 4px 4px 0 0;
+  }
+  .success-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+    animation: popIn 0.5s cubic-bezier(.22,1,.36,1) 0.1s both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.3); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .success-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .success-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+  .success-detail {
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    margin-bottom: 28px;
+  }
+  .success-detail span {
+    display: inline-block;
+    background: var(--gold-dim);
+    border: 1px solid rgba(212,130,154,0.25);
+    padding: 4px 12px;
+    margin: 3px;
+    font-size: 0.75rem;
+    border-radius: 20px;
+  }
+  .btn-done {
+    width: 100%;
+    padding: 16px;
+    background: var(--gold-dim);
+    border: 1px solid rgba(212,130,154,0.4);
+    color: var(--gold);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+  .btn-done:hover { background: var(--gold); color: white; }
+
+  /* ── CONFETTI ── */
+  .confetti-piece {
+    position: fixed;
+    pointer-events: none;
+    z-index: 200;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0%   { transform: translateY(-10px) rotate(0deg);   opacity: 1; }
+    100% { transform: translateY(100vh) rotate(600deg); opacity: 0; }
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+    margin-top: 32px;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.7s forwards;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-box">
+    <span class="success-icon">🎊</span>
+    <div class="success-title">Welcome!</div>
+    <div class="success-name" id="success-name"></div>
+    <div class="success-detail" id="success-detail"></div>
+    <button class="btn-done" onclick="closeSuccess()">Done</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-eyebrow">You're invited ✦</div>
+    <h1 class="header-title">Welcome to<br>our <em>Wedding</em></h1>
+    <p class="header-sub">Search your name below to check in</p>
+    <div class="header-divider"></div>
+  </div>
+
+
+  <!-- SEARCH -->
+  <div class="search-card">
+    <span class="search-label">Find your name</span>
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          class="search-input"
+          type="text"
+          id="search-input"
+          placeholder="e.g. Somchai…"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+          oninput="onSearch()"
+          onkeydown="if(event.key==='Enter') onSearch()"
+        >
+      </div>
+      <button class="btn-search" onclick="onSearch()">Search</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-wrap" id="results-wrap">
+    <div class="state-hint">
+      <span class="icon">✦</span>
+      <p>Type your name to find yourself on the guest list</p>
+    </div>
+  </div>
+
+  <div class="footer">✦ &nbsp; Wishing you a wonderful evening &nbsp; ✦</div>
+</div>
+
+
+<script>
+// ── STATE ──
+let allGuests = [];
+let scriptUrl = WEDDING_CONFIG.SCRIPT_URL || '';
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  if (scriptUrl && scriptUrl !== 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec') fetchGuests();
+  // Focus search on load (desktop)
+  setTimeout(() => document.getElementById('search-input').focus(), 600);
+});
+
+// ── FETCH GUESTS ──
+async function fetchGuests() {
+  if (!scriptUrl) return;
+  try {
+    const res = await fetch(`${scriptUrl}?action=getGuests`);
+    const data = await res.json();
+    allGuests = data.guests || [];
+  } catch(e) {
+    console.warn('Could not load guest list:', e);
+  }
+}
+
+// ── SEARCH ──
+function onSearch() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const wrap = document.getElementById('results-wrap');
+
+  if (!q || q.length < 1) {
+    wrap.innerHTML = `<div class="state-hint"><span class="icon">✦</span><p>Type your name to find yourself on the guest list</p></div>`;
+    return;
+  }
+
+  // If no script URL, use demo guests for preview
+  const pool = allGuests.length ? allGuests : demoGuests();
+  const matches = pool.filter(g => g.name.toLowerCase().includes(q));
+
+  if (!matches.length) {
+    wrap.innerHTML = `
+      <div class="state-hint">
+        <span class="icon">🔍</span>
+        <p>No guest found for "<strong style="color:var(--ivory)">${escHtml(q)}</strong>".<br>
+        Try a different spelling or ask staff for help.</p>
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <div class="results-label">${matches.length} guest${matches.length > 1 ? 's' : ''} found</div>
+    ${matches.map(g => renderGuestCard(g)).join('')}
+  `;
+}
+
+function renderGuestCard(g) {
+  const initials = g.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const alreadyIn = g.checkedIn;
+  return `
+    <div class="guest-card ${alreadyIn ? 'already-in' : ''}" id="card-${g.id}">
+      <div class="guest-avatar">${initials}</div>
+      <div class="guest-info">
+        <div class="guest-name">${escHtml(g.name)}</div>
+        <div class="guest-meta">
+          ${g.table ? `<span>Table ${g.table}</span>` : ''}
+          ${g.seats ? `<span>${g.seats} seat${g.seats > 1 ? 's' : ''}</span>` : ''}
+          ${alreadyIn && g.checkinTime ? `<span style="color:var(--sage)">✓ ${g.checkinTime}</span>` : ''}
+        </div>
+      </div>
+      <button
+        class="btn-checkin ${alreadyIn ? 'done' : ''}"
+        onclick="${alreadyIn ? '' : `doCheckIn(${g.id})`}"
+        ${alreadyIn ? 'disabled' : ''}>
+        ${alreadyIn ? '✓ Done' : 'Check In'}
+      </button>
+    </div>
+  `;
+}
+
+// ── CHECK IN ──
+async function doCheckIn(id) {
+  const guest = (allGuests.length ? allGuests : demoGuests()).find(g => g.id == id);
+  if (!guest) return;
+
+  // Optimistic UI update
+  guest.checkedIn = true;
+  guest.checkinTime = currentTime();
+  const card = document.getElementById(`card-${id}`);
+  if (card) {
+    card.classList.add('already-in');
+    card.querySelector('.btn-checkin').textContent = '✓ Done';
+    card.querySelector('.btn-checkin').classList.add('done');
+    card.querySelector('.btn-checkin').disabled = true;
+  }
+
+  // Show success
+  showSuccess(guest);
+
+  // Call backend
+  if (scriptUrl) {
+    try {
+      await fetch(`${scriptUrl}?action=selfCheckIn&id=${id}`);
+    } catch(e) { console.warn('Check-in sync failed:', e); }
+  }
+}
+
+// ── SUCCESS ──
+function showSuccess(guest) {
+  document.getElementById('success-name').textContent = guest.name;
+  document.getElementById('success-detail').innerHTML = `
+    ${guest.table ? `<span>Table ${guest.table}</span>` : ''}
+    ${guest.seats ? `<span>${guest.seats} seat${guest.seats > 1 ? 's' : ''}</span>` : ''}
+    <span>${currentTime()}</span>
+  `;
+  document.getElementById('success-overlay').classList.add('show');
+  fireConfetti();
+}
+
+function closeSuccess() {
+  document.getElementById('success-overlay').classList.remove('show');
+  document.getElementById('search-input').value = '';
+  document.getElementById('results-wrap').innerHTML = `<div class="state-hint"><span class="icon">✦</span><p>Type your name to find yourself on the guest list</p></div>`;
+  document.getElementById('search-input').focus();
+}
+
+// ── CONFETTI ──
+function fireConfetti() {
+  const colors = ['#d4829a','#f0b8c8','#88b5a0','#b8c8e8','#d0c0e8','#f5c8a8','#f5e8b0'];
+  for (let i = 0; i < 50; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const size = Math.random() * 7 + 4;
+    el.style.cssText = `
+      left: ${Math.random() * 100}%;
+      top: -10px;
+      width: ${size}px;
+      height: ${size}px;
+      background: ${colors[Math.floor(Math.random() * colors.length)]};
+      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+      animation-duration: ${Math.random() * 2.5 + 1.5}s;
+      animation-delay: ${Math.random() * 0.6}s;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+}
+
+
+
+// ── HELPERS ──
+function currentTime() {
+  const now = new Date();
+  return String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function demoGuests() {
+  return [
+    { id:1, name:'Somchai Jaidee',           table:'1', seats:2, checkedIn:false, checkinTime:'' },
+    { id:2, name:'Nattaya Srisuk',            table:'1', seats:1, checkedIn:true,  checkinTime:'17:41' },
+    { id:3, name:'Pravit & Malee Thongchai',  table:'2', seats:2, checkedIn:false, checkinTime:'' },
+    { id:4, name:'Wanchai Ruangrat',          table:'3', seats:3, checkedIn:false, checkinTime:'' },
+    { id:5, name:'Apinya Wongsawat',          table:'4', seats:1, checkedIn:false, checkinTime:'' },
+  ];
+}
+</script>
+</body>
+</html>
