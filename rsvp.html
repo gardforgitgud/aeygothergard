@@ -152,6 +152,20 @@ html, body { font-family:'Lato',sans-serif; background:var(--bg); color:var(--te
 label { display:block; font-size:0.63rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
 label.inline { display:flex; align-items:center; gap:10px; text-transform:none; letter-spacing:0; font-size:0.85rem; color:var(--text); cursor:pointer; margin-bottom:0; }
 
+/* ── THAI LABEL STYLE ── */
+.th-label {
+  display:block;
+  font-size:0.68rem;
+  letter-spacing:0.02em;
+  text-transform:none;
+  color:var(--gold);
+  opacity:0.75;
+  font-weight:400;
+  margin-top:2px;
+  margin-bottom:2px;
+  font-family:'Lato',sans-serif;
+}
+
 input[type=text], input[type=email], input[type=tel], select, textarea {
   width:100%; padding:13px 16px;
   background:var(--bg); border:1px solid var(--border); color:var(--text);
@@ -170,32 +184,32 @@ textarea { resize:vertical; min-height:90px; line-height:1.6; }
 .radio-tile input[type=radio] { position:absolute; opacity:0; width:0; height:0; }
 .radio-tile label { display:flex; align-items:center; justify-content:center; gap:8px; padding:16px; border:1.5px solid var(--border); background:rgba(255,255,255,0.6); cursor:pointer; transition:all 0.2s; border-radius:3px; font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; font-weight:700; color:var(--muted); margin-bottom:0; }
 .radio-tile label .tile-icon { font-size:1.2rem; }
-.radio-tile input:checked + label { border-color:var(--gold); background:var(--gold-dim); color:var(--gold-dark); box-shadow:0 0 0 3px rgba(212,130,154,0.12); }
-.radio-tile.is-decline input:checked + label { border-color:rgba(180,160,170,0.5); background:rgba(180,160,170,0.08); color:var(--muted); }
+.radio-tile input:checked + label { border-color:var(--gold); background:var(--gold-dim); color:var(--text); }
+.radio-tile.is-decline input:checked + label { border-color:#c8a0a8; background:rgba(200,160,168,0.1); }
+.tile-th { display:block; font-size:0.6rem; text-transform:none; letter-spacing:0.02em; font-weight:400; color:var(--gold); opacity:0.75; margin-top:3px; }
 
 /* ── GUEST ROWS ── */
-.guest-rows { display:flex; flex-direction:column; gap:10px; }
-.guest-row { display:grid; grid-template-columns:32px 1fr 1fr; gap:10px; align-items:end; padding:14px; background:rgba(253,244,248,0.7); border:1px dashed rgba(212,130,154,0.25); border-radius:3px; }
-.guest-row .field-group { margin-bottom:0; }
-.guest-num { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--rose),var(--lavender)); display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:700; color:white; flex-shrink:0; align-self:end; margin-bottom:2px; }
-.guest-name-display { width:100%; padding:13px 16px; background:rgba(212,130,154,0.07); border:1px dashed rgba(212,130,154,0.35); color:var(--text); border-radius:3px; font-size:0.9rem; font-style:italic; font-family:'Playfair Display',serif; }
+.guest-rows { margin-top:16px; display:flex; flex-direction:column; gap:12px; }
+.guest-row { display:grid; grid-template-columns:32px 1fr 1fr; gap:10px; align-items:start; padding:14px; background:rgba(255,255,255,0.6); border:1px solid var(--border); border-radius:3px; }
+.guest-num { width:28px; height:28px; border-radius:50%; background:var(--gold-dim); border:1px solid rgba(212,130,154,0.3); display:flex; align-items:center; justify-content:center; font-size:0.68rem; font-weight:700; color:var(--gold); flex-shrink:0; margin-top:22px; }
+.guest-name-display { padding:13px 16px; background:rgba(255,255,255,0.5); border:1px solid var(--border); border-radius:3px; font-size:0.9rem; color:var(--muted); font-style:italic; }
 
 /* ── HOTEL LIST ── */
-.hotel-list { display:flex; flex-direction:column; gap:8px; }
-.hotel-card { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 16px; background:rgba(255,255,255,0.7); border:1px solid var(--border); border-radius:3px; transition:border-color 0.2s; }
-.hotel-card:hover { border-color:var(--gold); }
-.hotel-name { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:500; color:var(--text); margin-bottom:2px; }
-.hotel-detail { font-size:0.72rem; color:var(--muted); letter-spacing:0.02em; }
-.hotel-map-btn { flex-shrink:0; padding:6px 14px; border:1px solid var(--border); border-radius:20px; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); text-decoration:none; transition:all 0.2s; white-space:nowrap; }
-.hotel-map-btn:hover { background:var(--gold); color:white; border-color:var(--gold); }
+.hotel-list { display:flex; flex-direction:column; gap:10px; margin-bottom:4px; }
+.hotel-card { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:rgba(255,255,255,0.65); border:1px solid var(--border); border-radius:3px; gap:10px; }
+.hotel-info { flex:1; min-width:0; }
+.hotel-name { font-size:0.82rem; font-weight:700; color:var(--text); margin-bottom:2px; }
+.hotel-detail { font-size:0.7rem; color:var(--muted); }
+.hotel-map-btn { padding:6px 12px; background:var(--gold-dim); border:1px solid rgba(212,130,154,0.35); color:var(--gold-dark); font-size:0.65rem; letter-spacing:0.1em; text-decoration:none; border-radius:2px; white-space:nowrap; transition:all 0.2s; }
+.hotel-map-btn:hover { background:var(--gold); color:white; }
 
 /* ── DRESS PILL ── */
-.dress-pill { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--bg); border:1px solid var(--border); border-radius:3px; }
-.dress-pill-icon { font-size:1.2rem; }
-.dress-pill-text { font-size:0.85rem; color:var(--text); }
+.dress-pill { display:flex; align-items:center; gap:10px; padding:12px 14px; background:rgba(255,255,255,0.65); border:1px solid var(--border); border-radius:3px; }
+.dress-pill-icon { font-size:1.3rem; }
+.dress-pill-text { font-size:0.82rem; color:var(--text); }
 
 /* ── INFO NOTE ── */
-.info-note { width:100%; max-width:560px; display:flex; align-items:flex-start; gap:12px; padding:14px 18px; background:rgba(255,255,255,0.6); border:1px solid var(--border); border-radius:4px; margin-bottom:14px; font-size:0.78rem; color:var(--muted); line-height:1.6; animation:fadeUp 0.5s ease 0.86s both; }
+.info-note { display:flex; align-items:flex-start; gap:12px; padding:14px 18px; background:rgba(255,255,255,0.6); border:1px solid var(--border); border-radius:4px; margin-bottom:14px; font-size:0.78rem; color:var(--muted); line-height:1.6; animation:fadeUp 0.5s ease 0.86s both; }
 
 /* ── SUBMIT ── */
 .btn-submit { width:100%; max-width:560px; padding:20px; background:var(--gold); border:none; color:white; font-family:'Playfair Display',serif; font-size:1.15rem; font-style:italic; letter-spacing:0.06em; cursor:pointer; border-radius:4px; transition:all 0.25s; animation:fadeUp 0.5s ease 0.92s both; }
@@ -288,50 +302,83 @@ textarea { resize:vertical; min-height:90px; line-height:1.6; }
 
   <!-- ══ CARD 1 — ATTENDANCE ══ -->
   <div class="card" id="card-1">
-    <div class="card-label">Will you be joining us?</div>
+    <div class="card-label">
+      Will you be joining us?
+      <span class="th-label" style="font-size:0.58rem;letter-spacing:0.28em;text-transform:uppercase;opacity:0.6">[TH: คุณจะมาร่วมงานไหม?]</span>
+    </div>
     <div class="attend-toggle">
       <div class="radio-tile">
         <input type="radio" name="attendance" id="att-yes" value="yes" checked onchange="toggleAttendance(this.value)">
-        <label for="att-yes"><span class="tile-icon">🥂</span> Joyfully accepts</label>
+        <label for="att-yes">
+          <span class="tile-icon">🥂</span>
+          <span>
+            Joyfully accepts
+            <span class="tile-th">[TH: ยินดีตอบรับ]</span>
+          </span>
+        </label>
       </div>
       <div class="radio-tile is-decline">
         <input type="radio" name="attendance" id="att-no" value="no" onchange="toggleAttendance(this.value)">
-        <label for="att-no"><span class="tile-icon">💌</span> Regretfully declines</label>
+        <label for="att-no">
+          <span class="tile-icon">💌</span>
+          <span>
+            Regretfully declines
+            <span class="tile-th">[TH: ขออภัยไม่สามารถมาได้]</span>
+          </span>
+        </label>
       </div>
     </div>
   </div>
 
   <!-- ══ CARD 2 — YOUR DETAILS ══ -->
   <div class="card" id="card-2">
-    <div class="card-label">Your details</div>
+    <div class="card-label">
+      Your details
+      <span class="th-label" style="font-size:0.58rem;letter-spacing:0.28em;text-transform:uppercase;opacity:0.6">[TH: ข้อมูลของคุณ]</span>
+    </div>
 
     <div class="row2" style="margin-bottom:16px">
       <div class="field-group">
-        <label for="first-name">First Name *</label>
+        <label for="first-name">
+          First Name *
+          <span class="th-label">[TH: ชื่อ]</span>
+        </label>
         <input type="text" id="first-name" placeholder="Somchai" autocomplete="given-name">
       </div>
       <div class="field-group">
-        <label for="last-name">Last Name *</label>
+        <label for="last-name">
+          Last Name *
+          <span class="th-label">[TH: นามสกุล]</span>
+        </label>
         <input type="text" id="last-name" placeholder="Jaidee" autocomplete="family-name">
       </div>
     </div>
 
     <div class="row2" style="margin-bottom:16px">
       <div class="field-group">
-        <label for="email">Email</label>
+        <label for="email">
+          Email
+          <span class="th-label">[TH: อีเมล]</span>
+        </label>
         <input type="email" id="email" placeholder="you@email.com" autocomplete="email">
       </div>
       <div class="field-group">
-        <label for="phone">Phone</label>
+        <label for="phone">
+          Phone
+          <span class="th-label">[TH: เบอร์โทรศัพท์]</span>
+        </label>
         <input type="tel" id="phone" placeholder="081-234-5678" autocomplete="tel">
       </div>
     </div>
 
     <div class="row2">
       <div class="field-group">
-        <label for="relation">Relation to Couple</label>
+        <label for="relation">
+          Relation to Couple
+          <span class="th-label">[TH: ความสัมพันธ์กับเจ้าบ่าว/เจ้าสาว]</span>
+        </label>
         <select id="relation">
-          <option value="">— Select —</option>
+          <option value="">— Select — / [TH: เลือก]</option>
           <option>Family of Bride</option>
           <option>Family of Groom</option>
           <option>Friend of Bride</option>
@@ -342,7 +389,10 @@ textarea { resize:vertical; min-height:90px; line-height:1.6; }
         </select>
       </div>
       <div class="field-group">
-        <label for="how-know">How did you meet? <span style="font-size:0.58rem;opacity:0.7">(optional)</span></label>
+        <label for="how-know">
+          How did you meet? <span style="font-size:0.58rem;opacity:0.7">(optional)</span>
+          <span class="th-label">[TH: รู้จักกันได้ยังไง?] <span style="opacity:0.6">(ไม่บังคับ)</span></span>
+        </label>
         <input type="text" id="how-know" placeholder="e.g. University, Work…">
       </div>
     </div>
@@ -350,10 +400,16 @@ textarea { resize:vertical; min-height:90px; line-height:1.6; }
 
   <!-- ══ CARD 3A — PARTY DETAILS (only shown when attending) ══ -->
   <div class="card" id="card-3a">
-    <div class="card-label">Your party</div>
+    <div class="card-label">
+      Your party
+      <span class="th-label" style="font-size:0.58rem;letter-spacing:0.28em;text-transform:uppercase;opacity:0.6">[TH: ผู้ร่วมงานของคุณ]</span>
+    </div>
 
     <div class="field-group">
-      <label for="party-size">Number of guests attending (including you)</label>
+      <label for="party-size">
+        Number of guests attending (including you)
+        <span class="th-label">[TH: จำนวนแขกที่จะมาร่วมงาน (รวมคุณด้วย)]</span>
+      </label>
       <select id="party-size" onchange="updateGuestRows()"></select>
     </div>
 
@@ -364,10 +420,16 @@ textarea { resize:vertical; min-height:90px; line-height:1.6; }
 
   <!-- ══ CARD 4 — EXTRA DETAILS (only shown when attending) ══ -->
   <div class="card" id="card-4">
-    <div class="card-label">A few more details</div>
+    <div class="card-label">
+      A few more details
+      <span class="th-label" style="font-size:0.58rem;letter-spacing:0.28em;text-transform:uppercase;opacity:0.6">[TH: รายละเอียดเพิ่มเติม]</span>
+    </div>
 
     <div class="field-group">
-      <label style="margin-bottom:12px">Nearby accommodation options</label>
+      <label style="margin-bottom:12px">
+        Nearby accommodation options
+        <span class="th-label">[TH: ตัวเลือกที่พักใกล้เคียง]</span>
+      </label>
       <div class="hotel-list">
         <div class="hotel-card">
           <div class="hotel-info">
@@ -397,7 +459,10 @@ textarea { resize:vertical; min-height:90px; line-height:1.6; }
     </div>
 
     <div class="field-group">
-      <label>Dress code</label>
+      <label>
+        Dress code
+        <span class="th-label">[TH: การแต่งกาย]</span>
+      </label>
       <div class="dress-pill">
         <span class="dress-pill-icon">👗</span>
         <span class="dress-pill-text" id="dress-code-text"></span>
@@ -407,9 +472,15 @@ textarea { resize:vertical; min-height:90px; line-height:1.6; }
 
   <!-- ══ CARD 5 — MESSAGE (shown to everyone) ══ -->
   <div class="card" id="card-5">
-    <div class="card-label">A message for the couple</div>
+    <div class="card-label">
+      A message for the couple
+      <span class="th-label" style="font-size:0.58rem;letter-spacing:0.28em;text-transform:uppercase;opacity:0.6">[TH: ฝากข้อความถึงคู่บ่าวสาว]</span>
+    </div>
     <div class="field-group">
-      <label for="wishes">Share your wishes, memories, or advice</label>
+      <label for="wishes">
+        Share your wishes, memories, or advice
+        <span class="th-label">[TH: แบ่งปันคำอวยพร ความทรงจำ หรือคำแนะนำ]</span>
+      </label>
       <textarea id="wishes" placeholder="Wishing you both a lifetime of love, laughter, and endless happiness…" maxlength="500" oninput="countChars('wishes',500)"></textarea>
       <div class="char-count" id="wishes-count">0 / 500</div>
     </div>
@@ -455,7 +526,7 @@ function init() {
   for (let i = 1; i <= (C.MAX_GUESTS_PER_RSVP || 5); i++) {
     const o = document.createElement('option');
     o.value = i;
-    o.textContent = i === 1 ? '1 — Just me' : `${i} guests`;
+    o.textContent = i === 1 ? '1 — Just me / [TH: แค่ฉันคนเดียว]' : `${i} guests / [TH: ${i} คน]`;
     ps.appendChild(o);
   }
 
@@ -487,11 +558,18 @@ function updateGuestRows() {
         <div class="guest-row">
           <div class="guest-num">1</div>
           <div class="field-group">
-            <label>Name</label>
+            <label>
+              Name
+              <span class="th-label">[TH: ชื่อ-นามสกุล]</span>
+            </label>
             <div class="guest-name-display" id="gname-display">${primaryName}</div>
           </div>
           <div class="field-group">
-            <label for="gallergy-1">Allergies / dietary notes <span style="font-size:0.58rem;opacity:0.7">(optional)</span></label>
+            <label for="gallergy-1">
+              Allergies / dietary notes
+              <span style="font-size:0.58rem;opacity:0.7">(optional)</span>
+              <span class="th-label">[TH: อาหารที่แพ้ / ข้อจำกัดด้านอาหาร] <span style="opacity:0.6">(ไม่บังคับ)</span></span>
+            </label>
             <input type="text" id="gallergy-1" placeholder="e.g. Nut allergy, none…">
           </div>
         </div>`;
@@ -500,11 +578,18 @@ function updateGuestRows() {
         <div class="guest-row">
           <div class="guest-num">${i}</div>
           <div class="field-group">
-            <label for="gname-${i}">Guest ${i} name</label>
+            <label for="gname-${i}">
+              Guest ${i} name
+              <span class="th-label">[TH: ชื่อแขกคนที่ ${i}]</span>
+            </label>
             <input type="text" id="gname-${i}" placeholder="Full name">
           </div>
           <div class="field-group">
-            <label for="gallergy-${i}">Allergies / dietary notes <span style="font-size:0.58rem;opacity:0.7">(optional)</span></label>
+            <label for="gallergy-${i}">
+              Allergies / dietary notes
+              <span style="font-size:0.58rem;opacity:0.7">(optional)</span>
+              <span class="th-label">[TH: อาหารที่แพ้ / ข้อจำกัดด้านอาหาร] <span style="opacity:0.6">(ไม่บังคับ)</span></span>
+            </label>
             <input type="text" id="gallergy-${i}" placeholder="e.g. Vegetarian, none…">
           </div>
         </div>`;
