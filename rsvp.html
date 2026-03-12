@@ -27,7 +27,7 @@
     // LINE_OA_URL: direct link guests tap to add your Line OA
     // e.g. 'https://line.me/R/ti/p/@yourlineid'  or  'https://lin.ee/xxxxxxx'
     // Leave empty to hide the Line section.
-    LINE_OA_URL: 'https://line.me/R/ti/p/@944uvkox?ts=03112251&oat_content=url',        // ← paste your Line OA link here
+    LINE_OA_URL: 'https://lin.ee/rH76pRT',        // ← paste your Line OA link here
     LINE_OA_ID:  '@944uvkox', // ← your Line OA display ID (shown as label)
   };
 </script>
@@ -170,49 +170,50 @@ textarea { resize:vertical; min-height:90px; line-height:1.6; }
 .dress-pill-icon { font-size:1.3rem; }
 .dress-pill-text { font-size:0.82rem; color:var(--text); }
 
-.info-note { display:flex; align-items:flex-start; gap:12px; padding:14px 18px; background:rgba(255,255,255,0.6); border:1px solid var(--border); border-radius:4px; margin-bottom:14px; font-size:0.78rem; color:var(--muted); line-height:1.6; animation:fadeUp 0.5s ease 0.86s both; }
-
-/* ── LINE OA CARD ── */
-.line-card {
+/* ── COMBINED CONTACT + LINE CARD ── */
+.contact-card {
   width:100%; max-width:560px;
   background:rgba(255,255,255,0.9);
-  border:1px solid rgba(6,199,85,0.25);
-  padding:24px;
+  border:1px solid var(--border);
   border-radius:4px;
-  box-shadow:0 4px 24px rgba(6,199,85,0.08);
+  box-shadow:0 4px 30px rgba(212,130,154,0.1);
   backdrop-filter:blur(8px);
   margin-bottom:16px;
   position:relative; overflow:hidden;
-  animation:fadeUp 0.5s ease 0.90s both;
-  display:flex; align-items:center; gap:20px;
+  animation:fadeUp 0.5s ease 0.86s both;
 }
-.line-card::before {
+.contact-card::before {
   content:''; position:absolute; top:0; left:0; right:0; height:3px;
-  background:linear-gradient(90deg,#06C755,#00e65c);
+  background:linear-gradient(90deg,var(--rose),var(--lavender),var(--periwinkle));
+}
+.contact-note {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:18px 24px;
+  font-size:0.78rem; color:var(--muted); line-height:1.6;
+}
+.contact-divider { height:1px; background:var(--border); margin:0 24px; }
+.contact-line {
+  display:flex; align-items:center; gap:18px;
+  padding:18px 24px;
 }
 .line-qr-wrap {
-  flex-shrink:0;
-  width:88px; height:88px;
-  background:white;
-  border:1px solid rgba(6,199,85,0.2);
-  border-radius:4px;
-  display:flex; align-items:center; justify-content:center;
-  overflow:hidden;
+  flex-shrink:0; width:76px; height:76px;
+  background:white; border:1px solid rgba(136,181,160,0.3);
+  border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden;
 }
 .line-qr-wrap canvas, .line-qr-wrap img { display:block; }
 .line-info { flex:1; min-width:0; }
-.line-eyebrow { font-size:0.58rem; letter-spacing:0.22em; text-transform:uppercase; color:#06C755; margin-bottom:5px; }
-.line-title { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:500; color:var(--text); margin-bottom:4px; }
-.line-sub { font-size:0.72rem; color:var(--muted); line-height:1.5; margin-bottom:12px; }
+.line-eyebrow { font-size:0.57rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--sage); margin-bottom:3px; }
+.line-title { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:500; color:var(--text); margin-bottom:3px; }
+.line-sub { font-size:0.7rem; color:var(--muted); line-height:1.5; margin-bottom:10px; }
 .line-btn {
-  display:inline-flex; align-items:center; gap:7px;
-  padding:9px 16px;
-  background:#06C755; border:none; border-radius:3px;
-  color:white; font-family:'Lato',sans-serif; font-size:0.72rem;
+  display:inline-flex; align-items:center; gap:7px; padding:8px 14px;
+  background:var(--sage); border:none; border-radius:3px;
+  color:white; font-family:'Lato',sans-serif; font-size:0.7rem;
   font-weight:700; letter-spacing:0.08em; text-decoration:none;
   transition:all 0.2s; cursor:pointer;
 }
-.line-btn:hover { background:#05a847; transform:translateY(-1px); box-shadow:0 4px 14px rgba(6,199,85,0.3); }
+.line-btn:hover { background:#6fa08c; transform:translateY(-1px); box-shadow:0 4px 14px rgba(136,181,160,0.35); }
 .line-btn svg { flex-shrink:0; }
 
 /* ── SUBMIT ── */
@@ -387,21 +388,21 @@ textarea { resize:vertical; min-height:90px; line-height:1.6; }
         <div class="hotel-card">
           <div class="hotel-info">
             <div class="hotel-name">Eastin Grand Hotel Phayathai</div>
-            <div class="hotel-detail">Approx. THB 5,000 / night · The venue</div>
+            <div class="hotel-detail">Approx. THB 5,000 / night · Venue place</div>
           </div>
           <a href="https://maps.app.goo.gl/daGtVvz2JYe2ieoK8" target="_blank" class="hotel-map-btn">Map ↗</a>
         </div>
         <div class="hotel-card">
           <div class="hotel-info">
             <div class="hotel-name">Hotel Tranz</div>
-            <div class="hotel-detail">Approx. THB 2,200 / night · 5 mins away from the venue</div>
+            <div class="hotel-detail">Approx. THB 2,200 / night · 5 minutes away from venue</div>
           </div>
           <a href="https://maps.app.goo.gl/WK4FDViURgLjTThC9" target="_blank" class="hotel-map-btn">Map ↗</a>
         </div>
         <div class="hotel-card">
           <div class="hotel-info">
             <div class="hotel-name">True Siam Phayathai Hotel</div>
-            <div class="hotel-detail">Approx. THB 1,500 / night · 10 mins away from the venue</div>
+            <div class="hotel-detail">Approx. THB 1,500 / night · 10 min from venue</div>
           </div>
           <a href="https://maps.app.goo.gl/2zU4vqYsPn9BEtNA7" target="_blank" class="hotel-map-btn">Map ↗</a>
         </div>
@@ -432,26 +433,26 @@ textarea { resize:vertical; min-height:90px; line-height:1.6; }
     </div>
   </div>
 
-  <!-- INFO NOTE -->
-  <div class="info-note">
-    <span style="font-size:1rem;flex-shrink:0">💌</span>
-    <span>Questions? Reach us at <strong id="contact-email"></strong> or <strong id="contact-phone"></strong></span>
-  </div>
-
-  <!-- LINE OA CARD -->
-  <div class="line-card" id="line-card" style="display:none">
-    <div class="line-qr-wrap" id="line-qr-wrap">
-      <!-- QR generated by JS -->
+  <!-- COMBINED CONTACT + LINE CARD -->
+  <div class="contact-card">
+    <div class="contact-note">
+      <span style="font-size:1rem;flex-shrink:0">💌</span>
+      <span>Questions? Reach us at <strong id="contact-email"></strong> or <strong id="contact-phone"></strong></span>
     </div>
-    <div class="line-info">
-      <div class="line-eyebrow">Stay in touch</div>
-      <div class="line-title">Follow us on Line</div>
-      <div class="line-sub">Add our Line OA for wedding updates &amp; announcements<br><span class="th-label" style="opacity:1;color:var(--muted)">[TH: ติดตามข่าวสารงานแต่งผ่าน Line]</span></div>
-      <a id="line-btn" href="#" target="_blank" class="line-btn">
-        <!-- Line icon -->
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
-        Add on Line &nbsp;<span id="line-id-label"></span>
-      </a>
+    <div id="line-section" style="display:none">
+      <div class="contact-divider"></div>
+      <div class="contact-line">
+        <div class="line-qr-wrap" id="line-qr-wrap"></div>
+        <div class="line-info">
+          <div class="line-eyebrow">Stay in touch</div>
+          <div class="line-title">Follow us on Line</div>
+          <div class="line-sub">Add our Line OA for updates &amp; announcements<br><span class="th-label" style="opacity:1;color:var(--muted)">[TH: ติดตามข่าวสารงานแต่งผ่าน Line]</span></div>
+          <a id="line-btn" href="#" target="_blank" class="line-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+            Add on Line &nbsp;<span id="line-id-label"></span>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -493,16 +494,13 @@ function init() {
 
   // ── Line OA ──
   if (C.LINE_OA_URL) {
-    const card = document.getElementById('line-card');
-    card.style.display = 'flex';
+    document.getElementById('line-section').style.display = 'block';
     document.getElementById('line-btn').href = C.LINE_OA_URL;
     document.getElementById('line-id-label').textContent = C.LINE_OA_ID || '';
-
-    // Generate QR code into the wrap div
     new QRCode(document.getElementById('line-qr-wrap'), {
       text: C.LINE_OA_URL,
-      width: 80, height: 80,
-      colorDark: '#06C755',
+      width: 72, height: 72,
+      colorDark: '#6fa08c',
       colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.H,
     });
