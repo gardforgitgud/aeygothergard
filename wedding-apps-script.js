@@ -1,8 +1,6 @@
 // ============================================================
-//  WEDDING APP — Google Apps Script Backend
-//  Covers: Guest Check-In, Lucky Draw, and RSVP
-//
-//  HOW TO USE:
+//  WEDDING APPS SCRIPT  — Google Apps Script backend
+//  Setup:
 //  1. Open your Google Sheet → Extensions → Apps Script
 //  2. Replace ALL existing code with this file
 //  3. Click Deploy → Manage Deployments → click the pencil ✏️
@@ -16,8 +14,14 @@
 const SHEET_NAME      = 'Guests';  // existing check-in sheet
 const RSVP_SHEET_NAME = 'RSVPs';   // new sheet, auto-created on first submit
 
-// Column indices in the Guests sheet (1-based):
-// A=1 ID, B=2 Name, C=3 Table, D=4 Phone, E=5 Seat Number, F=6 Checked In, G=7 Check-In Time, H=8 Lucky Draw Prize
+// Guests sheet columns (1-based):
+// A=1 ID | B=2 Name | C=3 Table | D=4 Phone | E=5 Seat Number
+// F=6 Checked In | G=7 Check-In Time | H=8 Lucky Draw Prize | I=9 Source
+//
+// Column I "Source" is used internally:
+//   "RSVP"  → row was auto-imported by syncRSVPsToGuests / submitRSVP
+//   ""      → row was manually added via the Add Guest button
+// This lets Sync know which rows to safely wipe and rebuild.
 
 // ── MAIN ROUTER ──────────────────────────────────────────────
 function doGet(e) {
@@ -103,6 +107,8 @@ function addGuest(params) {
     params.seatNumber || '',
     false,
     '',
+    '',        // Lucky Draw Prize
+    'manual',  // Source — explicit manual entry, preserved by Sync
   ]);
 
   return { success: true, id: newId };
@@ -145,7 +151,7 @@ function clearWinners() {
   H  Relation
   I  How They Met
   J  Party Size
-  K  Guest Names        comma-separated (includes primary guest as guest 1)
+  K  Guest Names        comma-separated (primary guest is always first entry)
   L  Guest Allergies    comma-separated (one entry per guest, matching K)
   M  Wishes / Message
 */
@@ -155,25 +161,29 @@ function submitRSVP(p) {
 
   const fullName  = ((p.firstName || '') + ' ' + (p.lastName || '')).trim();
   const attending = (p.attending || '').toLowerCase() === 'yes' ? 'Yes' : 'No';
+  const phone     = formatPhone(p.phone);
 
-  // FIX: Only write columns that the form actually populates (A–M = 13 columns)
   sheet.appendRow([
-    p.timestamp    || new Date().toISOString(),                   // A Timestamp
-    attending,                                                     // B Attending
-    p.firstName    || '',                                         // C First Name
-    p.lastName     || '',                                         // D Last Name
-    fullName,                                                      // E Full Name
-    p.email        || '',                                         // F Email
-    p.phone        || '',                                         // G Phone
-    p.relation     || '',                                         // H Relation
-    p.howKnow      || '',                                         // I How They Met
-    parseInt(p.partySize) || (attending === 'Yes' ? 1 : 0),      // J Party Size
-    p.guestNames      || '',                                      // K Guest Names
-    p.guestAllergies  || '',                                      // L Guest Allergies
-    p.wishes          || '',                                      // M Wishes / Message
+    p.timestamp    || new Date().toISOString(),
+    attending,
+    p.firstName    || '',
+    p.lastName     || '',
+    fullName,
+    p.email        || '',
+    phone,
+    p.relation     || '',
+    p.howKnow      || '',
+    parseInt(p.partySize) || (attending === 'Yes' ? 1 : 0),
+    p.guestNames      || '',
+    p.guestAllergies  || '',
+    p.wishes          || '',
   ]);
 
-  // Auto-populate Guests sheet for check-in on the day
+  // Force phone column (G = col 7) on the new row to plain text
+  // so Sheets never strips the leading zero
+  const newRow = sheet.getLastRow();
+  sheet.getRange(newRow, 7).setNumberFormat('@');
+
   if (attending === 'Yes' && fullName) {
     addGuestFromRSVP(p);
   }
@@ -181,7 +191,6 @@ function submitRSVP(p) {
   return { success: true };
 }
 
-// Reads all RSVPs back
 function getRSVPs() {
   const sheet = getRSVPSheet();
   const rows  = sheet.getDataRange().getValues();
@@ -194,70 +203,104 @@ function getRSVPs() {
   return { rsvps, total: rsvps.length };
 }
 
-// Manually re-sync all attending RSVPs → Guests sheet (1 row per guest)
+// ── SYNC RSVPs → Guests (FULL REBUILD) ──────────────────────
+//
+// Strategy:
+//   1. Preserve manually-added rows (Source = "" or anything ≠ "RSVP")
+//      AND their check-in state
+//   2. Delete ALL rows that are either tagged "RSVP" or have no Source
+//      tag at all (legacy rows written before the Source column existed)
+//      — effectively: wipe everything except manually-added rows that
+//      were explicitly saved via addGuest() with Source = "manual"
+//   3. Re-import fresh from the RSVPs sheet
+//
+// Simpler read: we keep rows where Source = "manual" (explicit),
+// and wipe everything else (Source = "RSVP", Source = "", or missing).
+//
 function syncRSVPsToGuests() {
   const rsvpSheet = getRSVPSheet();
   const rsvpRows  = rsvpSheet.getDataRange().getValues();
 
   if (!rsvpRows || rsvpRows.length < 2) {
-    return { success: true, added: 0, message: 'RSVPs sheet is empty — submit an RSVP first.' };
+    return { success: true, added: 0, message: 'RSVPs sheet is empty.' };
   }
 
   const headers = rsvpRows[0];
-  if (!headers || headers.length === 0) {
-    return { success: true, added: 0, message: 'RSVPs sheet has no headers yet.' };
-  }
-
   const col = {};
   headers.forEach((h, i) => { col[h] = i; });
 
   if (col['Attending'] === undefined || col['First Name'] === undefined) {
-    return { error: 'RSVPs sheet is missing expected columns. Submit at least one RSVP first to create the structure.' };
+    return { error: 'RSVPs sheet is missing expected columns. Submit at least one RSVP first.' };
   }
 
+  // ── Step 1: Snapshot Guests sheet, separate manual rows from RSVP rows ──
+  const guestSheet = getSheet();
+  const allGuestRows = guestSheet.getDataRange().getValues();
+
+  // "manual" rows = Source column (index 8) explicitly equals "manual"
+  // Everything else (blank, "RSVP", or missing col) gets wiped and rebuilt
+  const manualRows = allGuestRows.slice(1).filter(row => {
+    const source = (row[8] || '').toString().trim();
+    return source === 'manual';
+  });
+
+  // ── Step 2: Wipe all data rows, then restore only manual rows ──
+  const lastRow = guestSheet.getLastRow();
+  if (lastRow > 1) {
+    guestSheet.getRange(2, 1, lastRow - 1, guestSheet.getLastColumn()).clearContent();
+    // Delete the now-empty rows so appendRow starts clean
+    guestSheet.deleteRows(2, lastRow - 1);
+  }
+
+  // Re-write manual rows first (preserving their IDs, check-in state, etc.)
+  manualRows.forEach(row => {
+    guestSheet.appendRow(row);
+  });
+
+  // ── Step 3: Re-import all attending RSVPs ───────────────────
   let added = 0;
   rsvpRows.slice(1).forEach(row => {
     const attending = (row[col['Attending']] || '').toString().trim();
     if (attending !== 'Yes') return;
 
-    const firstName = (row[col['First Name']]     || '').trim();
-    const lastName  = (row[col['Last Name']]      || '').trim();
+    const firstName = (row[col['First Name']] || '').toString().trim();
+    const lastName  = (row[col['Last Name']]  || '').toString().trim();
     const fullName  = (firstName + ' ' + lastName).trim();
     if (!fullName) return;
 
     const p = {
       firstName,
       lastName,
-      phone:           (row[col['Phone']]            || '').trim(),
-      partySize:       parseInt(row[col['Party Size']]) || 1,
-      guestNames:      (row[col['Guest Names']]      || '').toString(),
-      guestAllergies:  (row[col['Guest Allergies']]  || '').toString(),
+      phone:          (row[col['Phone']]           || '').toString().trim(),
+      partySize:      parseInt(row[col['Party Size']]) || 1,
+      guestNames:     (row[col['Guest Names']]     || '').toString().trim(),
+      guestAllergies: (row[col['Guest Allergies']] || '').toString().trim(),
     };
 
-    const before = getSheet().getLastRow();
+    const before = guestSheet.getLastRow();
     addGuestFromRSVP(p);
-    added += getSheet().getLastRow() - before;
+    added += guestSheet.getLastRow() - before;
   });
 
   return { success: true, added };
 }
 
-// ── Add each guest from an RSVP as individual rows in the Guests sheet ──
+// ── Add each guest from an RSVP as individual rows ──────────
 //
-// FIX: guestNames from rsvp.html is "Primary Name, Guest 2, Guest 3, …"
-// (the form includes the primary person as guest 1 in the comma-separated list).
-// So we simply split the full list — no separate primaryName logic needed.
+// guestNames from rsvp.html = "Primary Name, Guest 2, Guest 3, …"
+// The primary submitter is always included as the first entry.
+// We split on commas and write one row per name.
+// Column I is set to "RSVP" so Sync can safely wipe these on rebuild.
 //
 function addGuestFromRSVP(p) {
-  const sheet    = getSheet();
-  const rows     = sheet.getDataRange().getValues();
+  const sheet     = getSheet();
+  const rows      = sheet.getDataRange().getValues();
   const partySize = parseInt(p.partySize) || 1;
 
-  // Split the full comma-separated guest names list (primary is included as first entry)
   const allNames     = (p.guestNames     || '').split(',').map(s => s.trim()).filter(Boolean);
   const allAllergies = (p.guestAllergies || '').split(',').map(s => s.trim());
 
-  // Fallback: if guestNames is empty, at least add the primary submitter
+  // Fallback: if guestNames somehow empty, use the primary submitter's name
   if (allNames.length === 0) {
     const fullName = ((p.firstName || '') + ' ' + (p.lastName || '')).trim();
     if (fullName) allNames.push(fullName);
@@ -268,20 +311,24 @@ function addGuestFromRSVP(p) {
 
   allNames.forEach((name, idx) => {
     if (!name) return;
-    if (existingNames.includes(name.toLowerCase())) return; // already there
+    if (existingNames.includes(name.toLowerCase())) return;
 
-    const newId  = sheet.getLastRow();
-    const allergy = allAllergies[idx] || '';
+    const newId   = sheet.getLastRow();
+    const phone   = formatPhone(p.phone);
 
     sheet.appendRow([
       newId,
       name,
-      '',              // Table — staff will assign later
-      p.phone || '',
-      '',              // Seat Number — staff will assign later
-      false,           // not checked in yet
-      '',              // no check-in time yet
+      '',       // Table — staff assigns later
+      phone,
+      '',       // Seat Number — staff assigns later
+      false,    // Checked In
+      '',       // Check-In Time
+      '',       // Lucky Draw Prize
+      'RSVP',   // Source
     ]);
+    // Force phone cell (col D = 4) to plain text
+    sheet.getRange(sheet.getLastRow(), 4).setNumberFormat('@');
     existingNames.push(name.toLowerCase());
   });
 }
@@ -298,7 +345,7 @@ function getSheet() {
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
 
-    const headers = ['ID', 'Name', 'Table', 'Phone', 'Seat Number', 'Checked In', 'Check-In Time', 'Lucky Draw Prize'];
+    const headers = ['ID', 'Name', 'Table', 'Phone', 'Seat Number', 'Checked In', 'Check-In Time', 'Lucky Draw Prize', 'Source'];
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
 
     const hRange = sheet.getRange(1, 1, 1, headers.length);
@@ -315,6 +362,10 @@ function getSheet() {
     sheet.setColumnWidth(6, 100);
     sheet.setColumnWidth(7, 120);
     sheet.setColumnWidth(8, 140);
+    sheet.setColumnWidth(9, 80);  // Source column — narrow, for internal use
+
+    // Force phone column (D=4) to plain text so leading zeros are preserved
+    sheet.getRange('D:D').setNumberFormat('@');
   }
   return sheet;
 }
@@ -326,21 +377,10 @@ function getRSVPSheet() {
   if (!sheet) {
     sheet = ss.insertSheet(RSVP_SHEET_NAME);
 
-    // FIX: Headers match only the 13 columns the form actually sends
     const headers = [
-      'Timestamp',        // A
-      'Attending',        // B
-      'First Name',       // C
-      'Last Name',        // D
-      'Full Name',        // E
-      'Email',            // F
-      'Phone',            // G
-      'Relation',         // H
-      'How They Met',     // I
-      'Party Size',       // J
-      'Guest Names',      // K
-      'Guest Allergies',  // L
-      'Wishes',           // M
+      'Timestamp', 'Attending', 'First Name', 'Last Name', 'Full Name',
+      'Email', 'Phone', 'Relation', 'How They Met', 'Party Size',
+      'Guest Names', 'Guest Allergies', 'Wishes / Message',
     ];
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
 
@@ -350,30 +390,40 @@ function getRSVPSheet() {
     hRange.setFontWeight('bold');
     sheet.setFrozenRows(1);
 
-    sheet.setColumnWidth(1, 160);  // Timestamp
-    sheet.setColumnWidth(2, 80);   // Attending
-    sheet.setColumnWidth(3, 110);  // First Name
-    sheet.setColumnWidth(4, 110);  // Last Name
-    sheet.setColumnWidth(5, 160);  // Full Name
-    sheet.setColumnWidth(6, 180);  // Email
-    sheet.setColumnWidth(7, 120);  // Phone
-    sheet.setColumnWidth(8, 120);  // Relation
-    sheet.setColumnWidth(9, 150);  // How They Met
-    sheet.setColumnWidth(10, 80);  // Party Size
-    sheet.setColumnWidth(11, 220); // Guest Names
-    sheet.setColumnWidth(12, 220); // Guest Allergies
-    sheet.setColumnWidth(13, 260); // Wishes
+    // Force phone column (G=7) to plain text so leading zeros are preserved
+    sheet.getRange('G:G').setNumberFormat('@');
   }
   return sheet;
 }
 
-function formatTime(val) {
-  if (!val) return '';
-  const d = new Date(val);
-  if (isNaN(d)) return val.toString();
-  return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+function now() {
+  return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'HH:mm');
 }
 
-function now() {
-  return new Date().toISOString();
+function formatTime(val) {
+  if (!val) return '';
+  if (val instanceof Date) return Utilities.formatDate(val, Session.getScriptTimeZone(), 'HH:mm');
+  return String(val);
+}
+
+// Normalise Thai phone numbers to 0XX-XXX-XXXX format.
+// Handles: 0830112222 / 083-011-2222 / 083 011 2222 / +66830112222
+function formatPhone(raw) {
+  if (!raw) return '';
+  let digits = raw.toString().replace(/\D/g, '');
+
+  // Convert +66 / 66 country code → leading 0
+  if (digits.startsWith('660') && digits.length === 12) {
+    digits = digits.slice(2);
+  } else if (digits.startsWith('66') && digits.length === 11) {
+    digits = '0' + digits.slice(2);
+  }
+
+  // Standard 10-digit Thai mobile: 0XX-XXX-XXXX
+  if (digits.length === 10 && digits.startsWith('0')) {
+    return digits.slice(0,3) + '-' + digits.slice(3,6) + '-' + digits.slice(6);
+  }
+
+  // Fallback — return raw but preserve leading zero
+  return digits || raw.toString().trim();
 }

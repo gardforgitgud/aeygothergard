@@ -8,10 +8,13 @@
     SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxMYebIN0VO5hYRZpAoLKR1Szsd8dTHB_GBOeUjmjdJh3CyFmoG7L_qryPWOTzTvTbC/exec',
 
     // Full URL to the guest self check-in page (for QR code):
-    GUEST_CHECKIN_URL: 'https://aeygothergard.day/guest-checkin.html',
+    GUEST_CHECKIN_URL: 'https://aeygothergard.day/self-checkin.html',
 
     // Display name in the header:
     COUPLE_NAMES: 'Aey & Gard Wedding',
+    
+    // Passcode
+    CHECKIN_PASSCODE: '27062026',
   };
 </script>
 <!-- ============================================================ -->
@@ -615,9 +618,133 @@
     table { font-size: 0.78rem; }
     thead th:nth-child(3), thead th:nth-child(4), tbody td:nth-child(3), tbody td:nth-child(4) { display: none; }
   }
+   /* ── PASSCODE GATE ── */
+  #passcode-gate {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(135deg, #f9e8ee 0%, #ece8f8 50%, #e8f0f8 100%);
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  #passcode-gate.unlocked {
+    opacity: 0; visibility: hidden; pointer-events: none;
+  }
+  .pc-card {
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(212,130,154,0.22);
+    border-radius: 18px;
+    padding: 40px 36px 36px;
+    width: min(340px, 90vw);
+    box-shadow: 0 8px 48px rgba(168,85,112,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    text-align: center;
+    animation: pcFadeUp 0.5s ease both;
+  }
+  @keyframes pcFadeUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .pc-eyebrow {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: #9a7e88; margin-bottom: 6px;
+  }
+  .pc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.55rem; color: #4a3540;
+    margin-bottom: 4px;
+  }
+  .pc-sub {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.78rem; color: #9a7e88;
+    margin-bottom: 28px;
+  }
+  .pc-dots {
+    display: flex; justify-content: center; gap: 12px;
+    margin-bottom: 28px;
+  }
+  .pc-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(212,130,154,0.4);
+    background: transparent;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  }
+  .pc-dot.filled {
+    background: #d4829a;
+    border-color: #d4829a;
+    transform: scale(1.15);
+  }
+  .pc-dot.error {
+    background: #e87070;
+    border-color: #e87070;
+    animation: pcShake 0.35s ease;
+  }
+  @keyframes pcShake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-5px); }
+    40%      { transform: translateX(5px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+  }
+  .pc-keypad {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-bottom: 16px;
+  }
+  .pc-key {
+    background: rgba(255,255,255,0.8);
+    border: 1px solid rgba(212,130,154,0.22);
+    border-radius: 10px;
+    padding: 14px 0;
+    font-family: 'Lato', sans-serif;
+    font-size: 1.15rem; font-weight: 700;
+    color: #4a3540;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.1s, box-shadow 0.12s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pc-key:hover  { background: rgba(212,130,154,0.12); box-shadow: 0 2px 8px rgba(168,85,112,0.1); }
+  .pc-key:active { transform: scale(0.93); background: rgba(212,130,154,0.22); }
+  .pc-key.key-del {
+    font-size: 0.85rem; color: #9a7e88; font-weight: 400;
+  }
+  .pc-key.key-0 { grid-column: 2; }
+  .pc-error-msg {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.74rem; color: #c0505a;
+    min-height: 18px; transition: opacity 0.2s;
+    letter-spacing: 0.04em;
+  }
 </style>
 </head>
 <body>
+<!-- PASSCODE GATE -->
+<div id="passcode-gate">
+  <div class="pc-card">
+    <div class="pc-eyebrow">Staff Access</div>
+    <div class="pc-title">Reception Check-In</div>
+    <div class="pc-sub">Enter passcode to continue</div>
+
+    <div class="pc-dots" id="pc-dots">
+      <!-- dots rendered by JS based on passcode length -->
+    </div>
+
+    <div class="pc-keypad">
+      <button class="pc-key" onclick="pcKey('1')">1</button>
+      <button class="pc-key" onclick="pcKey('2')">2</button>
+      <button class="pc-key" onclick="pcKey('3')">3</button>
+      <button class="pc-key" onclick="pcKey('4')">4</button>
+      <button class="pc-key" onclick="pcKey('5')">5</button>
+      <button class="pc-key" onclick="pcKey('6')">6</button>
+      <button class="pc-key" onclick="pcKey('7')">7</button>
+      <button class="pc-key" onclick="pcKey('8')">8</button>
+      <button class="pc-key" onclick="pcKey('9')">9</button>
+      <button class="pc-key key-del" onclick="pcDel()">⌫</button>
+      <button class="pc-key key-0" onclick="pcKey('0')">0</button>
+      <div></div>
+    </div>
+    <div class="pc-error-msg" id="pc-error"></div>
+  </div>
+</div>
 
 <!-- HEADER -->
 <header>
@@ -626,7 +753,7 @@
     <h1>✦ Guest Check-In</h1>
   </div>
   <div class="header-nav">
-    <a href="index.html" class="nav-btn active">
+    <a href="reception.html" class="nav-btn active">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
       Check-In
     </a>
@@ -1018,6 +1145,70 @@ function showToast(msg) {
 // ── INIT ──
 loadFromLocalStorage();
 if (scriptUrl && scriptUrl !== 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec') fetchGuests();
+
+(function () {
+  const SESSION_KEY = 'wedding-checkin-unlocked';
+  const gate = document.getElementById('passcode-gate');
+
+  // Already unlocked this session? Skip gate immediately.
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    gate.classList.add('unlocked');
+    return;
+  }
+
+  const passcode = String(WEDDING_CONFIG.CHECKIN_PASSCODE || '1234');
+  let entered = '';
+
+  // Build dot indicators sized to passcode length
+  const dotsEl = document.getElementById('pc-dots');
+  function renderDots() {
+    dotsEl.innerHTML = '';
+    for (let i = 0; i < passcode.length; i++) {
+      const d = document.createElement('div');
+      d.className = 'pc-dot' + (i < entered.length ? ' filled' : '');
+      dotsEl.appendChild(d);
+    }
+  }
+  renderDots();
+
+  window.pcKey = function (digit) {
+    if (entered.length >= passcode.length) return;
+    entered += digit;
+    renderDots();
+    document.getElementById('pc-error').textContent = '';
+
+    if (entered.length === passcode.length) {
+      if (entered === passcode) {
+        // ✓ Correct
+        sessionStorage.setItem(SESSION_KEY, '1');
+        gate.classList.add('unlocked');
+      } else {
+        // ✗ Wrong — shake and reset
+        const dots = dotsEl.querySelectorAll('.pc-dot');
+        dots.forEach(d => { d.classList.remove('filled'); d.classList.add('error'); });
+        document.getElementById('pc-error').textContent = 'Incorrect passcode — try again';
+        setTimeout(() => {
+          entered = '';
+          renderDots();
+        }, 600);
+      }
+    }
+  };
+
+  window.pcDel = function () {
+    if (!entered.length) return;
+    entered = entered.slice(0, -1);
+    renderDots();
+    document.getElementById('pc-error').textContent = '';
+  };
+
+  // Keyboard support
+  document.addEventListener('keydown', function (e) {
+    if (gate.classList.contains('unlocked')) return;
+    if (e.key >= '0' && e.key <= '9') pcKey(e.key);
+    else if (e.key === 'Backspace') pcDel();
+  });
+})();
 </script>
 </body>
 </html>
