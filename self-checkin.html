@@ -19,8 +19,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Welcome — Wedding Check-In</title>
+<title id="page-title">Welcome — Wedding Check-In</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Lato:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="images/favicon.png">
 <style>
   :root {
     --bg: #fef6f8;
@@ -473,7 +474,7 @@
   <!-- HEADER -->
   <div class="header">
     <div class="header-eyebrow">You're invited ✦</div>
-    <h1 class="header-title">Welcome to<br>our <em>Wedding</em></h1>
+    <h1 class="header-title" id="page-heading">Welcome to<br>our <em>Wedding</em></h1>
     <p class="header-sub">Search your name below to check in</p>
     <div class="header-divider"></div>
   </div>
@@ -516,7 +517,15 @@
 
 
 <script>
+  
 // ── STATE ──
+(function() {
+  const names = WEDDING_CONFIG.COUPLE_NAMES || 'Our Wedding';
+  document.getElementById('page-title').textContent = `Welcome — ${names}`;
+  document.getElementById('page-heading').innerHTML =
+    `Welcome to<br><em>${names}</em>`;
+})();
+
 let allGuests = [];
 let scriptUrl = WEDDING_CONFIG.SCRIPT_URL || '';
 
