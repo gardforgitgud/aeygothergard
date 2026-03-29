@@ -33,6 +33,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Find Your Seat — Wedding</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="images/favicon.png">
 <style>
   :root {
     --ivory: #fdf4f8;
@@ -61,6 +62,8 @@
     backdrop-filter: blur(14px);
     padding: 18px 48px;
     display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
     border-bottom: 1px solid var(--border);
     box-shadow: 0 2px 24px rgba(212,130,154,0.1);
   }
@@ -310,11 +313,12 @@
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
     .map-area { padding: 20px 16px; }
-    header { padding: 16px 20px; }
+    header { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+    .header-nav { width: 100%; justify-content: flex-start; }
     .map-container { min-height: 340px; }
   }
   @media (max-width: 600px) {
-    .panel { padding: 20px 16px; }
+    .panel { padding: 20px 16px;}
   }
 </style>
 </head>
@@ -327,17 +331,13 @@
     <h1>✦ Seat Finder</h1>
   </div>
   <div class="header-nav">
-    <a href="receptioin.html" class="nav-btn">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-      Check-In
-    </a>
-    <a href="luckydraw.html" class="nav-btn">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-      Lucky Draw
-    </a>
     <a href="seat-finder.html" class="nav-btn active">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10H3M7 15v5m10-5v5M5 20h14M3 6l3-3 3 3M15 3l3 3 3-3"/></svg>
       Seat Finder
+    </a>
+    <a href="self-checkin.html" class="nav-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Check In
     </a>
   </div>
 </header>

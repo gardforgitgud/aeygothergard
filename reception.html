@@ -14,7 +14,7 @@
     COUPLE_NAMES: 'Aey & Gard Wedding',
     
     // Passcode
-    CHECKIN_PASSCODE: '27062026',
+    CHECKIN_PASSCODE_HASH: '4c720c5b9eb10a6b2603868bd48470c816f1ab3dd4d98c016f4fb016b2aba6c3',
   };
 </script>
 <!-- ============================================================ -->
@@ -25,6 +25,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wedding Check-In — Reception</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="images/favicon.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root {
@@ -149,6 +150,8 @@
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
+	border-radius: 2px;
+    box-shadow: 0 2px 12px rgba(212,130,154,0.07);
   }
   .config-banner-left {
     display: flex;
@@ -171,17 +174,18 @@
     border: 1px solid var(--border);
     color: var(--charcoal);
     padding: 8px 12px;
-    font-family: 'Jost', sans-serif;
+    font-family: 'Lato', sans-serif;
     font-size: 0.82rem;
     min-width: 0;
+	border-radius: 2px;
   }
   .config-banner input:focus { outline: none; border-color: var(--gold); }
   .btn-qr {
     padding: 8px 18px;
-    background: var(--charcoal);
-    border: none;
+    background: var(--lavender);
+    border: 1px solid rgba(208,192,232,0.5);
     color: var(--ivory);
-    font-family: 'Jost', sans-serif;
+    font-family: 'Lato', sans-serif;
     font-size: 0.68rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
@@ -189,6 +193,7 @@
     display: flex; align-items: center; gap: 6px;
     transition: all 0.2s;
     flex-shrink: 0;
+	border-radius: 2px;
   }
   .btn-qr:hover { background: var(--gold); color: var(--charcoal); }
   .config-banner-right {
@@ -761,10 +766,6 @@
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
       Lucky Draw
     </a>
-    <a href="seat-finder.html" class="nav-btn">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10H3M7 15v5m10-5v5M5 20h14M3 6l3-3 3 3M15 3l3 3 3-3"/></svg>
-      Seat Finder
-    </a>
   </div>
 </header>
 
@@ -1156,14 +1157,20 @@ if (scriptUrl && scriptUrl !== 'https://script.google.com/macros/s/YOUR_SCRIPT_I
     return;
   }
 
-  const passcode = String(WEDDING_CONFIG.CHECKIN_PASSCODE || '1234');
+  const PASSCODE_HASH = WEDDING_CONFIG.CHECKIN_PASSCODE_HASH;
+  const PASSCODE_LEN  = 8; // update if you change passcode length
   let entered = '';
+
+  async function hashString(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2,'0')).join('');
+  }
 
   // Build dot indicators sized to passcode length
   const dotsEl = document.getElementById('pc-dots');
   function renderDots() {
     dotsEl.innerHTML = '';
-    for (let i = 0; i < passcode.length; i++) {
+    for (let i = 0; i < PASSCODE_LEN; i++) {
       const d = document.createElement('div');
       d.className = 'pc-dot' + (i < entered.length ? ' filled' : '');
       dotsEl.appendChild(d);
@@ -1172,26 +1179,23 @@ if (scriptUrl && scriptUrl !== 'https://script.google.com/macros/s/YOUR_SCRIPT_I
   renderDots();
 
   window.pcKey = function (digit) {
-    if (entered.length >= passcode.length) return;
+    if (entered.length >= PASSCODE_LEN) return;
     entered += digit;
     renderDots();
     document.getElementById('pc-error').textContent = '';
 
-    if (entered.length === passcode.length) {
-      if (entered === passcode) {
-        // ✓ Correct
-        sessionStorage.setItem(SESSION_KEY, '1');
-        gate.classList.add('unlocked');
-      } else {
-        // ✗ Wrong — shake and reset
-        const dots = dotsEl.querySelectorAll('.pc-dot');
-        dots.forEach(d => { d.classList.remove('filled'); d.classList.add('error'); });
-        document.getElementById('pc-error').textContent = 'Incorrect passcode — try again';
-        setTimeout(() => {
-          entered = '';
-          renderDots();
-        }, 600);
-      }
+    if (entered.length === PASSCODE_LEN) {
+      hashString(entered).then(hash => {
+        if (hash === PASSCODE_HASH) {
+          sessionStorage.setItem(SESSION_KEY, '1');
+          gate.classList.add('unlocked');
+        } else {
+          const dots = dotsEl.querySelectorAll('.pc-dot');
+          dots.forEach(d => { d.classList.remove('filled'); d.classList.add('error'); });
+          document.getElementById('pc-error').textContent = 'Incorrect passcode — try again';
+          setTimeout(() => { entered = ''; renderDots(); }, 600);
+        }
+      });
     }
   };
 
