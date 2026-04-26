@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Important Update — Aey & Gard Wedding</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Lato:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<script>
+  const WEDDING_CONFIG = {
+    SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxMYebIN0VO5hYRZpAoLKR1Szsd8dTHB_GBOeUjmjdJh3CyFmoG7L_qryPWOTzTvTbC/exec',
+    COUPLE_NAMES: 'Aey & Gard',
+    OLD_DATE: 'Saturday, 27 June 2026',
+    NEW_DATE: 'Saturday, 26 December 2026',
+    VENUE_NAME: 'Eastin Grand Hotel Phayathai',
+    RSVP_NEW_PAGE: 'rsvp_active.html',   // ← page for guests who haven't RSVPed yet
+  };
+</script>
+<style>
+:root {
+  --bg:         #fef6f8;
+  --gold:       #d4829a;
+  --gold-dim:   rgba(212,130,154,0.15);
+  --gold-dark:  #a85570;
+  --gold-light: #f0b8c8;
+  --muted:      #b09098;
+  --sage:       #88b5a0;
+  --rose:       #e8a0b0;
+  --lavender:   #d0c0e8;
+  --periwinkle: #b8c8e8;
+  --peach:      #f5c8a8;
+  --butter:     #f5e8b0;
+  --border:     rgba(212,130,154,0.22);
+  --text:       #4a3540;
+  --green:      #88b5a0;
+  --red:        #c87888;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { font-family:'Lato',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overscroll-behavior:none; }
+
+/* ── BACKGROUND ORBS ── */
+.bg-orbs { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+.orb { position:absolute; border-radius:50%; filter:blur(60px); opacity:0.55; animation:drift 14s ease-in-out infinite alternate; }
+.orb-1 { width:500px; height:500px; background:radial-gradient(ellipse,#fce0e8,#faeef8); top:-150px; left:-100px; }
+.orb-2 { width:380px; height:380px; background:radial-gradient(ellipse,#e8eefa,#d8f0f0); bottom:-100px; right:-80px; animation-delay:-5s; }
+.orb-3 { width:280px; height:280px; background:radial-gradient(ellipse,#fef0d8,#fce8d0); top:40%; left:50%; animation-delay:-10s; opacity:0.4; }
+.orb-4 { width:200px; height:200px; background:radial-gradient(ellipse,#e8e0f8,#d0e8f8); top:20%; right:5%; animation-delay:-3s; opacity:0.4; }
+@keyframes drift { from{transform:translate(0,0) scale(1)} to{transform:translate(24px,18px) scale(1.04)} }
+
+/* ── PAGE ── */
+.page {
+  position:relative; z-index:1;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:0 20px 72px;
+}
+
+/* ── HERO ── */
+.hero { width:100%; max-width:560px; text-align:center; padding:56px 0 36px; }
+.hero-eyebrow {
+  font-size:0.6rem; letter-spacing:0.38em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:12px;
+  animation:fadeUp 0.6s ease 0.1s both;
+}
+.hero-names {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.8rem,9vw,3.8rem);
+  font-weight:500; line-height:1.05;
+  animation:fadeUp 0.6s ease 0.2s both;
+}
+.hero-names em { font-style:italic; color:var(--gold); }
+.hero-ampersand {
+  font-family:'Playfair Display',serif; font-style:italic;
+  font-size:1.8rem; color:var(--gold-light); display:block; margin:2px 0;
+}
+.hero-divider {
+  width:80px; height:1px;
+  background:linear-gradient(90deg,transparent,var(--rose),var(--lavender),transparent);
+  margin:18px auto 0; animation:fadeUp 0.6s ease 0.3s both;
+}
+
+/* ── ANNOUNCEMENT CARD ── */
+.announce-card {
+  width:100%; max-width:560px;
+  background:rgba(255,255,255,0.9);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:32px 28px;
+  margin-bottom:20px;
+  position:relative; overflow:hidden;
+  box-shadow:0 4px 30px rgba(212,130,154,0.1);
+  backdrop-filter:blur(8px);
+  animation:fadeUp 0.6s ease 0.35s both;
+}
+.announce-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,var(--rose),var(--lavender),var(--periwinkle));
+}
+.announce-icon { font-size:2.2rem; display:block; text-align:center; margin-bottom:14px; }
+.announce-title {
+  font-family:'Playfair Display',serif;
+  font-size:1.35rem; font-weight:500; text-align:center;
+  color:var(--text); margin-bottom:16px;
+}
+.announce-body { font-size:0.85rem; color:var(--muted); line-height:1.8; text-align:center; }
+.announce-body strong { color:var(--text); font-weight:700; }
+
+/* Date change strip */
+.date-change {
+  display:grid; grid-template-columns:1fr auto 1fr;
+  align-items:center; gap:12px;
+  margin:20px 0;
+  padding:16px;
+  background:rgba(255,255,255,0.6);
+  border:1px solid var(--border); border-radius:4px;
+}
+.date-box { text-align:center; }
+.date-label { font-size:0.58rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+.date-val {
+  font-family:'Playfair Display',serif;
+  font-size:0.9rem; font-weight:500; color:var(--text); line-height:1.3;
+}
+.date-val.old { text-decoration:line-through; color:var(--muted); font-size:0.82rem; }
+.date-val.new { color:var(--gold-dark); }
+.date-arrow { font-size:1.4rem; color:var(--gold-light); }
+
+/* ── QUESTION SECTION ── */
+.question-card {
+  width:100%; max-width:560px;
+  background:rgba(255,255,255,0.9);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:28px 24px;
+  margin-bottom:16px;
+  position:relative; overflow:hidden;
+  box-shadow:0 4px 30px rgba(212,130,154,0.1);
+  backdrop-filter:blur(8px);
+  animation:fadeUp 0.6s ease 0.48s both;
+}
+.question-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,var(--peach),var(--rose));
+}
+.q-label {
+  font-size:0.62rem; letter-spacing:0.28em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:18px;
+  display:flex; align-items:center; gap:8px;
+}
+.q-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.q-title {
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem; font-weight:500;
+  color:var(--text); margin-bottom:18px;
+  text-align:center; line-height:1.5;
+}
+
+/* ── OPTION TILES ── */
+.options { display:flex; flex-direction:column; gap:10px; }
+.option-tile {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:18px 16px;
+  border:1.5px solid var(--border);
+  background:rgba(255,255,255,0.6);
+  border-radius:4px;
+  cursor:pointer;
+  transition:all 0.2s;
+  text-align:left;
+  width:100%;
+  font-family:'Lato',sans-serif;
+}
+.option-tile:hover {
+  border-color:var(--gold);
+  background:var(--gold-dim);
+  transform:translateY(-1px);
+  box-shadow:0 4px 16px rgba(212,130,154,0.12);
+}
+.option-tile.selected {
+  border-color:var(--gold);
+  background:var(--gold-dim);
+}
+.option-tile.opt-green:hover, .option-tile.opt-green.selected {
+  border-color:var(--sage);
+  background:rgba(136,181,160,0.12);
+}
+.option-tile.opt-red:hover, .option-tile.opt-red.selected {
+  border-color:var(--red);
+  background:rgba(200,120,136,0.1);
+}
+.option-icon { font-size:1.6rem; flex-shrink:0; margin-top:2px; }
+.option-content { flex:1; min-width:0; }
+.option-title {
+  font-size:0.88rem; font-weight:700; color:var(--text);
+  margin-bottom:4px; letter-spacing:0.02em;
+}
+.option-desc { font-size:0.76rem; color:var(--muted); line-height:1.5; }
+
+/* ── FORM SECTION (hidden initially) ── */
+.form-section {
+  width:100%; max-width:560px;
+  display:none; /* shown by JS */
+}
+.form-card {
+  background:rgba(255,255,255,0.9);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:28px 24px;
+  margin-bottom:16px;
+  position:relative; overflow:hidden;
+  box-shadow:0 4px 30px rgba(212,130,154,0.1);
+  backdrop-filter:blur(8px);
+  animation:fadeUp 0.4s ease both;
+}
+.form-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+}
+.form-card.card-green::before { background:linear-gradient(90deg,var(--sage),var(--periwinkle)); }
+.form-card.card-red::before   { background:linear-gradient(90deg,var(--rose),var(--lavender)); }
+
+.form-label {
+  font-size:0.62rem; letter-spacing:0.28em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:18px;
+  display:flex; align-items:center; gap:8px;
+}
+.form-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.form-title {
+  font-family:'Playfair Display',serif;
+  font-size:1rem; font-weight:500; color:var(--text);
+  margin-bottom:20px; line-height:1.5; text-align:center;
+}
+
+.field-group { margin-bottom:16px; }
+.field-group:last-of-type { margin-bottom:0; }
+
+label {
+  display:block; font-size:0.63rem; letter-spacing:0.2em;
+  text-transform:uppercase; color:var(--muted); margin-bottom:7px;
+}
+.th-label {
+  display:block; font-size:0.65rem; letter-spacing:0.02em;
+  text-transform:none; color:var(--gold); opacity:0.75;
+  font-weight:400; margin-top:2px; margin-bottom:2px;
+}
+input[type=text], input[type=tel] {
+  width:100%; padding:13px 16px;
+  background:var(--bg); border:1px solid var(--border);
+  color:var(--text); font-family:'Lato',sans-serif; font-size:0.9rem;
+  border-radius:3px; transition:border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance:none;
+}
+input::placeholder { color:var(--muted); }
+input:focus {
+  outline:none; border-color:var(--gold); background:white;
+  box-shadow:0 0 0 3px rgba(212,130,154,0.12);
+}
+
+.btn-submit {
+  width:100%; max-width:560px; padding:18px;
+  background:var(--gold); border:none; color:white;
+  font-family:'Playfair Display',serif; font-size:1.1rem;
+  font-style:italic; letter-spacing:0.06em;
+  cursor:pointer; border-radius:4px; transition:all 0.25s;
+  display:none; /* shown by JS */
+}
+.btn-submit:hover { background:var(--gold-dark); transform:translateY(-1px); box-shadow:0 8px 24px rgba(212,130,154,0.35); }
+.btn-submit:disabled { opacity:0.55; cursor:not-allowed; transform:none; box-shadow:none; }
+
+/* ── BACK BUTTON ── */
+.btn-back {
+  background:transparent; border:none; cursor:pointer;
+  font-family:'Lato',sans-serif; font-size:0.72rem;
+  letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--muted); display:none;
+  align-items:center; gap:6px; margin-bottom:12px;
+  padding:0; transition:color 0.2s;
+  width:100%; max-width:560px;
+}
+.btn-back:hover { color:var(--gold); }
+.btn-back.visible { display:flex; }
+
+/* ── SUCCESS OVERLAY ── */
+.success-overlay {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:rgba(250,238,242,0.95); backdrop-filter:blur(12px);
+  align-items:center; justify-content:center; padding:24px;
+}
+.success-overlay.show { display:flex; }
+.success-box {
+  max-width:400px; width:100%; background:white;
+  border:1px solid rgba(212,130,154,0.3); padding:48px 36px;
+  border-radius:4px; box-shadow:0 20px 60px rgba(212,130,154,0.2);
+  text-align:center; position:relative;
+  animation:popIn 0.45s cubic-bezier(.22,1,.36,1) both;
+}
+.success-box::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg,var(--rose),var(--lavender),var(--periwinkle));
+  border-radius:4px 4px 0 0;
+}
+.success-icon { font-size:3rem; display:block; margin-bottom:14px; }
+.success-title {
+  font-family:'Playfair Display',serif; font-size:1.9rem;
+  font-weight:500; color:var(--text); margin-bottom:8px;
+}
+.success-sub {
+  font-family:'Playfair Display',serif; font-size:1rem;
+  font-style:italic; color:var(--gold); margin-bottom:14px;
+}
+.success-detail { font-size:0.8rem; color:var(--muted); line-height:1.7; margin-bottom:28px; }
+.btn-done {
+  width:100%; padding:15px;
+  background:var(--gold-dim); border:1px solid rgba(212,130,154,0.4);
+  color:var(--gold); font-family:'Lato',sans-serif; font-size:0.78rem;
+  letter-spacing:0.18em; text-transform:uppercase; cursor:pointer;
+  border-radius:3px; font-weight:700; transition:all 0.2s;
+}
+.btn-done:hover { background:var(--gold); color:white; }
+
+/* confetti */
+.confetti-piece {
+  position:fixed; pointer-events:none; z-index:300;
+  animation:confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0%{transform:translateY(-10px) rotate(0deg);opacity:1}
+  100%{transform:translateY(100vh) rotate(600deg);opacity:0}
+}
+
+.footer {
+  width:100%; max-width:560px; text-align:center; margin-top:36px;
+  font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase;
+  color:var(--muted); animation:fadeUp 0.5s ease 0.7s both;
+}
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes popIn  { from{opacity:0;transform:scale(0.88) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+@media(max-width:480px) {
+  .date-change { grid-template-columns:1fr; }
+  .date-arrow  { transform:rotate(90deg); }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb orb-1"></div><div class="orb orb-2"></div>
+  <div class="orb orb-3"></div><div class="orb orb-4"></div>
+</div>
+
+<div class="success-overlay" id="success-overlay">
+  <div class="success-box" id="success-box"></div>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">A message from the couple ✦</div>
+    <h1 class="hero-names">
+      <em id="hero-name-1">Aey</em>
+      <span class="hero-ampersand">&</span>
+      <em id="hero-name-2">Gard</em>
+    </h1>
+    <div class="hero-divider"></div>
+  </div>
+
+  <!-- ANNOUNCEMENT -->
+  <div class="announce-card">
+    <span class="announce-icon">💌</span>
+    <div class="announce-title">Our Wedding Date Has Changed</div>
+    <div class="announce-body">
+      We have an important update to share with you.<br>
+      Due to unforeseen circumstances, we have rescheduled our wedding to a new date.<br><br>
+      <strong>We sincerely apologise for any inconvenience</strong> and completely understand
+      if your plans need to change. We love you either way. ✦
+    </div>
+
+    <div class="date-change">
+      <div class="date-box">
+        <div class="date-label">Was</div>
+        <div class="date-val old" id="old-date"></div>
+      </div>
+      <div class="date-arrow">→</div>
+      <div class="date-box">
+        <div class="date-label">Now</div>
+        <div class="date-val new" id="new-date"></div>
+      </div>
+    </div>
+
+    <div class="announce-body">
+      <strong id="venue-note"></strong><br>
+      Please let us know your updated availability below.
+    </div>
+  </div>
+
+  <!-- QUESTION -->
+  <div class="question-card" id="question-card">
+    <div class="q-label">Your response</div>
+    <div class="q-title">Which best describes your situation?<br><span style="font-size:0.82rem;color:var(--muted);font-family:'Lato',sans-serif;font-style:normal">[TH: กรุณาเลือกข้อที่ตรงกับสถานการณ์ของคุณ]</span></div>
+
+    <div class="options">
+
+      <!-- Option 1: Still coming -->
+      <button class="option-tile opt-green" onclick="selectOption(1)">
+        <span class="option-icon">🥂</span>
+        <div class="option-content">
+          <div class="option-title">I'll be there on 26 December!</div>
+          <div class="option-desc">
+            I confirmed for June and I'm happy to join on the new date.<br>
+            <span style="color:var(--sage);font-size:0.7rem">[TH: ฉันยืนยันไปแล้วสำหรับวันเดิม และยังไปได้วันใหม่]</span>
+          </div>
+        </div>
+      </button>
+
+      <!-- Option 2: Can't make it anymore -->
+      <button class="option-tile opt-red" onclick="selectOption(2)">
+        <span class="option-icon">💌</span>
+        <div class="option-content">
+          <div class="option-title">I'm sorry, I can't make the new date</div>
+          <div class="option-desc">
+            I had confirmed for June but unfortunately can't attend in December.<br>
+            <span style="color:var(--red);font-size:0.7rem">[TH: ฉันยืนยันไปแล้วแต่ไม่สามารถไปได้ในวันใหม่]</span>
+          </div>
+        </div>
+      </button>
+
+      <!-- Option 3: Haven't RSVPed -->
+      <button class="option-tile" onclick="selectOption(3)">
+        <span class="option-icon">✉️</span>
+        <div class="option-content">
+          <div class="option-title">I haven't RSVPed yet</div>
+          <div class="option-desc">
+            I haven't sent my original RSVP — take me to the full form.<br>
+            <span style="color:var(--muted);font-size:0.7rem">[TH: ฉันยังไม่ได้ตอบรับเลย พาฉันไปที่ฟอร์ม RSVP]</span>
+          </div>
+        </div>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- BACK BUTTON -->
+  <button class="btn-back" id="btn-back" onclick="goBack()">
+    ← Change my answer
+  </button>
+
+  <!-- FORM SECTION (shown after option 1 or 2) -->
+  <div class="form-section" id="form-section">
+    <div class="form-card" id="form-card">
+      <div class="form-label" id="form-label-text">Your details</div>
+      <div class="form-title" id="form-title-text"></div>
+
+      <div class="field-group">
+        <label for="f-name">Full Name *<span class="th-label">[TH: ชื่อ-นามสกุล]</span></label>
+        <input type="text" id="f-name" placeholder="e.g. Somchai Jaidee" autocomplete="name">
+      </div>
+      <div class="field-group">
+        <label for="f-phone">Phone Number *<span class="th-label">[TH: เบอร์โทรศัพท์]</span></label>
+        <input type="tel" id="f-phone" placeholder="e.g. 081-234-5678" autocomplete="tel">
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT BUTTON -->
+  <button class="btn-submit" id="btn-submit" onclick="submitResponse()">
+    Send my response ✦
+  </button>
+
+  <div class="footer">✦ &nbsp; <span id="footer-names"></span> &nbsp; ✦ &nbsp; <span id="footer-new-date"></span></div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────
+(function init() {
+  const C = WEDDING_CONFIG;
+  const parts = C.COUPLE_NAMES.split(' & ');
+  document.getElementById('hero-name-1').textContent = parts[0] || 'Bride';
+  document.getElementById('hero-name-2').textContent = parts[1] || 'Groom';
+  document.getElementById('old-date').textContent    = C.OLD_DATE;
+  document.getElementById('new-date').textContent    = C.NEW_DATE;
+  document.getElementById('venue-note').textContent  = 'Venue remains ' + C.VENUE_NAME;
+  document.getElementById('footer-names').textContent    = C.COUPLE_NAMES;
+  document.getElementById('footer-new-date').textContent = C.NEW_DATE;
+})();
+
+// ─────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────
+let currentOption = null;
+
+// ─────────────────────────────────────────
+//  OPTION SELECTION
+// ─────────────────────────────────────────
+function selectOption(n) {
+  currentOption = n;
+
+  if (n === 3) {
+    // Redirect to full RSVP page
+    window.location.href = WEDDING_CONFIG.RSVP_NEW_PAGE || 'rsvp_active.html';
+    return;
+  }
+
+  // Hide question card, show form
+  document.getElementById('question-card').style.display = 'none';
+  document.getElementById('btn-back').classList.add('visible');
+
+  const formSection = document.getElementById('form-section');
+  const formCard    = document.getElementById('form-card');
+  const formTitle   = document.getElementById('form-title-text');
+  const btnSubmit   = document.getElementById('btn-submit');
+
+  if (n === 1) {
+    formCard.className  = 'form-card card-green';
+    formTitle.innerHTML = `Wonderful! We can't wait to celebrate with you on <strong>${WEDDING_CONFIG.NEW_DATE}</strong>. 🥂<br><br>Please confirm your name and phone number so we can update our records.`;
+    btnSubmit.textContent = "Confirm I'm coming ✦";
+    btnSubmit.style.background = 'var(--sage)';
+  } else {
+    formCard.className  = 'form-card card-red';
+    formTitle.innerHTML = `We completely understand and will miss you dearly. 💌<br><br>Please leave your name and phone so we can update our guest list.`;
+    btnSubmit.textContent = "Send my regrets ✦";
+    btnSubmit.style.background = 'var(--gold)';
+  }
+
+  formSection.style.display = 'block';
+  btnSubmit.style.display   = 'block';
+
+  // Smooth scroll to form
+  setTimeout(() => formSection.scrollIntoView({ behavior:'smooth', block:'nearest' }), 80);
+  setTimeout(() => document.getElementById('f-name').focus(), 400);
+}
+
+function goBack() {
+  currentOption = null;
+  document.getElementById('question-card').style.display = 'block';
+  document.getElementById('form-section').style.display  = 'none';
+  document.getElementById('btn-submit').style.display    = 'none';
+  document.getElementById('btn-back').classList.remove('visible');
+  document.getElementById('f-name').value  = '';
+  document.getElementById('f-phone').value = '';
+  window.scrollTo({ top: 0, behavior:'smooth' });
+}
+
+// ─────────────────────────────────────────
+//  SUBMIT
+// ─────────────────────────────────────────
+async function submitResponse() {
+  const name  = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+
+  if (!name)  { flashField('f-name',  'Please enter your name.'); return; }
+  if (!phone) { flashField('f-phone', 'Please enter your phone number.'); return; }
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled  = true;
+  btn.textContent = 'Sending…';
+
+  const status    = currentOption === 1 ? 'Still Coming' : 'Cannot Attend';
+  const timestamp = new Date().toISOString();
+
+  // ── Call Google Apps Script ──
+  const url = WEDDING_CONFIG.SCRIPT_URL;
+  const live = url && !url.includes('YOUR_SCRIPT_ID');
+  if (live) {
+    try {
+      const params = new URLSearchParams({
+        action:    'submitRevisedRSVP',
+        name, phone, status, timestamp,
+      });
+      await fetch(`${url}?${params.toString()}`);
+    } catch(e) { console.warn('RevisedRSVP sync failed:', e); }
+  }
+
+  showSuccess(name, status);
+}
+
+function flashField(id, msg) {
+  const el = document.getElementById(id);
+  el.style.borderColor = '#d4829a';
+  el.style.boxShadow   = '0 0 0 3px rgba(212,130,154,0.2)';
+  el.focus();
+  el.addEventListener('input', () => { el.style.borderColor=''; el.style.boxShadow=''; }, { once:true });
+  showToast(msg);
+}
+
+// ─────────────────────────────────────────
+//  SUCCESS
+// ─────────────────────────────────────────
+function showSuccess(name, status) {
+  const box = document.getElementById('success-box');
+
+  if (status === 'Still Coming') {
+    box.innerHTML = `
+      <span class="success-icon">🥂</span>
+      <div class="success-title">See you there!</div>
+      <div class="success-sub">${esc(name)}</div>
+      <div class="success-detail">
+        We've noted that you'll be joining us on<br>
+        <strong style="color:var(--text)">${WEDDING_CONFIG.NEW_DATE}</strong><br><br>
+        We'll be in touch closer to the date. ✦
+      </div>
+      <button class="btn-done" onclick="closeSucess()">Done ✦</button>`;
+    fireConfetti();
+  } else {
+    box.innerHTML = `
+      <span class="success-icon">💌</span>
+      <div class="success-title">We understand</div>
+      <div class="success-sub">You'll be missed, ${esc(name)}</div>
+      <div class="success-detail">
+        Thank you for letting us know. We hope to celebrate with you another time.<br><br>
+        Sending you all our love. ✦
+      </div>
+      <button class="btn-done" onclick="closeSucess()">Close ✦</button>`;
+  }
+
+  document.getElementById('success-overlay').classList.add('show');
+}
+
+function closeSucess() {
+  document.getElementById('success-overlay').classList.remove('show');
+  window.scrollTo({ top:0, behavior:'smooth' });
+  goBack();
+}
+
+// ─────────────────────────────────────────
+//  CONFETTI
+// ─────────────────────────────────────────
+function fireConfetti() {
+  const colors = ['#d4829a','#f0b8c8','#88b5a0','#b8c8e8','#d0c0e8','#f5c8a8','#f5e8b0'];
+  for (let i = 0; i < 65; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const s = Math.random() * 7 + 4;
+    el.style.cssText = `left:${Math.random()*100}%;top:-10px;width:${s}px;height:${s}px;`
+      + `background:${colors[Math.floor(Math.random()*colors.length)]};`
+      + `border-radius:${Math.random()>.5?'50%':'2px'};`
+      + `animation-duration:${Math.random()*2.5+1.5}s;`
+      + `animation-delay:${Math.random()*0.5}s;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4500);
+  }
+}
+
+// ─────────────────────────────────────────
+//  TOAST
+// ─────────────────────────────────────────
+function showToast(msg) {
+  let t = document.getElementById('rsvp-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'rsvp-toast';
+    t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);'
+      + 'background:#4a3540;color:white;padding:14px 22px;font-size:0.8rem;letter-spacing:0.05em;'
+      + 'z-index:400;border-left:3px solid #e8a0b0;transition:all 0.3s cubic-bezier(.22,1,.36,1);'
+      + 'border-radius:3px;white-space:nowrap;opacity:0;pointer-events:none;'
+      + 'box-shadow:0 4px 20px rgba(212,130,154,0.2);';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(80px)'; }, 3200);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
