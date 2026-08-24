@@ -337,8 +337,18 @@ input:focus {
 @keyframes popIn  { from{opacity:0;transform:scale(0.88) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
 
 @media(max-width:480px) {
-  .date-change { grid-template-columns:1fr; }
-  .date-arrow  { transform:rotate(90deg); }
+  .date-change {
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto auto;  /* Explicit row sizing */
+    gap:0;                               /* Remove horizontal gap */
+  }
+  .date-arrow {
+    transform:rotate(90deg);
+    justify-self:center;                 /* Center horizontally */
+    align-self:center;                   /* Center vertically */
+    margin:12px 0;                       /* Add vertical spacing */
+    font-size:1.6rem;                    /* Slightly larger on mobile */
+  }
 }
 </style>
 </head>
